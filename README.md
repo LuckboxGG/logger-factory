@@ -16,6 +16,11 @@ const anotherInfoLogger = infoLoggerFactory.create( { prefix: 'Classname2' } );
 This example creates a LoggerFactory instance of log level `info`, and that instance is used to 
 create two Logger instances with `Classname` and `Classname2` prefixes respectively.
 
+### LoggerFactory methods
+
+- `create({ logLevel })` - Creates a Logger instance with the provided log level. 
+List of supported log levels is provided below in this README.  
+
 ### Log levels
 
 The following log levels are supported, listed from least verbose to the most verbose:
@@ -30,7 +35,9 @@ The following log levels are supported, listed from least verbose to the most ve
 Note that in all cases, when setting a value, all less-verbose types of messages are also logged,
 for example if you set `warn` as log level, `off`, `system` and `error` are also logged.
 
-### Methods
+### Logger Methods
+
+The following methods can be called on a Logger instance:
 
 - `system(message)` - The provided `message` is logged via `console.log` if the configured log level allows 
 - `error(message)` - The provided `message` is logged via `console.error` if the configured log level allows
