@@ -4,26 +4,33 @@
 const assert = require('assert');
 
 class AbstractLogger {
-  static get LOG_LEVELS() {
+  static get LEVELS() {
     return {
-      OFF: 'off',
-      SYSTEM: 'system',
-      ERROR: 'error',
-      WARN: 'warn',
-      INFO: 'info',
-      DEBUG: 'debug',
-    };
-  }
-
-  static get LOG_LEVELS_WEIGHT() {
-    return {
-      OFF: 0,
-      SYSTEM: 1,
-      ERROR: 2,
-      WARN: 3,
-      INFO: 4,
-      DEBUG: 5,
-    };
+      OFF: {
+        code: 'off',
+        weight: 0,
+      },
+      SYSTEM: {
+        code: 'system',
+        weight: 1,
+      },
+      ERROR: {
+        code: 'error',
+        weight: 2,
+      },
+      WARN: {
+        code: 'warn',
+        weight: 3,
+      },
+      INFO: {
+        code: 'info',
+        weight: 4,
+      },
+      DEBUG: {
+        code: 'debug',
+        weight: 5,
+      },
+    }
   }
 
   constructor({ prefix, logLevel: providedLogLevel } = {}) {
@@ -34,13 +41,7 @@ class AbstractLogger {
       this._prefix = prefix;
     }
 
-    const logLevels = Object.values(AbstractLogger.LOG_LEVELS);
-    assert(logLevels.includes(providedLogLevel), `Invalid logLevel provided - ${providedLogLevel}. Possible values: ${logLevels.join(', ')}`);
-
-    const index = Object.values(AbstractLogger.LOG_LEVELS).indexOf(providedLogLevel);
-    const key = Object.keys(AbstractLogger.LOG_LEVELS)[index];
-
-    this._logLevel = AbstractLogger.LOG_LEVELS_WEIGHT[key];
+    this._logLevel = this._determineLogLevel(providedLogLevel);
   }
 
   debug(message) {
@@ -65,6 +66,10 @@ class AbstractLogger {
 
   clear() {
     throw new Error('Abstract method!');
+  }
+
+  get logLevel() {
+    return this._logLevel.code;
   }
 
   _formatArgs(args) {
@@ -107,6 +112,17 @@ class AbstractLogger {
     let str = `(${date.getFullYear()}/${month}/${day} ${hour}:${min}:${sec}.${msec})`;
 
     return str;
+  }
+
+  _determineLogLevel(providedLogLevel) {
+    const foundLogLevel = Object.values(AbstractLogger.LEVELS).find(aLevel => aLevel.code === providedLogLevel);
+    assert(foundLogLevel, `Invalid logLevel provided - ${providedLogLevel}. Possible values: ${this._getAllowedLogLevelValues()}`);
+
+    return foundLogLevel;
+  }
+
+  _getAllowedLogLevelValues () {
+    return Object.values(AbstractLogger.LEVELS).map((aLevel) => aLevel.code).join(', ');
   }
 }
 

@@ -5,6 +5,8 @@ const LoggerFactory = require('./LoggerFactory');
 const infoLoggerFactory = new LoggerFactory({ logLevel: 'info' });
 const infoLogger = infoLoggerFactory.create( { prefix: 'InfoClassname' } );
 
+console.log(`Created a logger instance with level ${infoLogger.logLevel}`);
+
 infoLogger.info('This INFO message will be displayed!');
 infoLogger.debug('This DEBUG message will NOT be displayed!');
 
