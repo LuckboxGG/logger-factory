@@ -1,9 +1,10 @@
 {
   "name": "@luckbox/logger-factory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easy to use logger with several levels of logging.",
   "author": "Luckbox",
   "license": "ISC",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LuckboxGG/logger-factory.git"
