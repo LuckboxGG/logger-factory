@@ -2,10 +2,6 @@
   "name": "logger-factory",
   "version": "1.0.0",
   "description": "Easy to use logger with several levels of logging.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
+  "author": "Luckbox",
   "license": "ISC"
 }
