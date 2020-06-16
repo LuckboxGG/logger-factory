@@ -1,5 +1,5 @@
 {
-  "name": "logger-factory",
+  "name": "@luckbox/logger-factory",
   "version": "1.0.0",
   "description": "Easy to use logger with several levels of logging.",
   "author": "Luckbox",
