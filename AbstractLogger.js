@@ -3,7 +3,7 @@
 
 const assert = require('assert');
 
-class Logger {
+class AbstractLogger {
   static get LOG_LEVELS() {
     return {
       OFF: 'off',
@@ -34,13 +34,13 @@ class Logger {
       this._prefix = prefix;
     }
 
-    const logLevels = Object.values(Logger.LOG_LEVELS);
+    const logLevels = Object.values(AbstractLogger.LOG_LEVELS);
     assert(logLevels.includes(providedLogLevel), `Invalid logLevel provided - ${providedLogLevel}. Possible values: ${logLevels.join(', ')}`);
 
-    const index = Object.values(Logger.LOG_LEVELS).indexOf(providedLogLevel);
-    const key = Object.keys(Logger.LOG_LEVELS)[index];
+    const index = Object.values(AbstractLogger.LOG_LEVELS).indexOf(providedLogLevel);
+    const key = Object.keys(AbstractLogger.LOG_LEVELS)[index];
 
-    this._logLevel = Logger.LOG_LEVELS_WEIGHT[key];
+    this._logLevel = AbstractLogger.LOG_LEVELS_WEIGHT[key];
   }
 
   debug(message) {
@@ -110,4 +110,4 @@ class Logger {
   }
 }
 
-module.exports = Logger;
+module.exports = AbstractLogger;

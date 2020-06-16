@@ -1,6 +1,6 @@
 'use strict';
 
-const ConsoleLogger = require('./ConsoleLogger');
+const ConsoleLogger = require('./adapters/ConsoleLogger');
 
 class LoggerFactory {
   constructor({ logLevel }) {
