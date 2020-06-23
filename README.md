@@ -8,9 +8,9 @@ but all share the same logging level that is set for the LoggerFactory instance.
 ```
 const LoggerFactory = require('./LoggerFactory');
 
-const infoLoggerFactory = new LoggerFactory({ logLevel: 'info' });
-const infoLogger = infoLoggerFactory.create( { prefix: 'Classname' } );
-const anotherInfoLogger = infoLoggerFactory.create( { prefix: 'Classname2' } );
+const infoLoggerFactory = new LoggerFactory('info');
+const infoLogger = infoLoggerFactory.create('Classname');
+const anotherInfoLogger = infoLoggerFactory.create('Classname2');
 ```
 
 This example creates a LoggerFactory instance of log level `info`, and that instance is used to 
@@ -18,8 +18,13 @@ create two Logger instances with `Classname` and `Classname2` prefixes respectiv
 
 ### LoggerFactory methods
 
-- `create({ logLevel })` - Creates a Logger instance with the provided log level. 
-List of supported log levels is provided below in this README.  
+- `create({ logLevel, adapter})` - Creates an instance of the requested adapter (specified by `adapter`) 
+with the provided `logLevel`. List of supported log levels is provided below in this README.  
+
+### Adapters
+
+Currently, only one adapter is supported - a console logger, that can be instanced by providing `console` 
+as adapter value.
 
 ### Log levels
 
