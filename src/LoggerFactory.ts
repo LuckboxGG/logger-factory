@@ -25,7 +25,8 @@ class LoggerFactory {
       `Invalid adapter - ${adapter}. Supported: ${Object.values(supportedAdapterValues).join(',')}`,
     );
     switch (adapter.toLowerCase()) {
-      case SupportedAdapters.Console: this.adapter = ConsoleLoggerAdapter; break;
+      case SupportedAdapters.Console:
+        this.adapter = ConsoleLoggerAdapter; break;
     }
   }
 
