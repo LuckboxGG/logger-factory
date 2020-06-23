@@ -2,7 +2,7 @@
 import { LoggerAdapter } from './LoggerAdapter';
 
 class ConsoleLoggerAdapter implements LoggerAdapter {
-  log(...args) {
+  log(...args: Array<any>) {
     console.log(...args);
   }
 }

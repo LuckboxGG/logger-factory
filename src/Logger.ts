@@ -40,31 +40,31 @@ class Logger {
     this.prefix = prefix;
   }
 
-  error(...args) {
+  error(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Error]) {
       this.adapter.log(...this.formatArgs('error', args));
     }
   }
 
-  warn(...args) {
+  warn(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Warn]) {
       this.adapter.log(...this.formatArgs('warn', args));
     }
   }
 
-  info(...args) {
+  info(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Info]) {
       this.adapter.log(...this.formatArgs('info', args));
     }
   }
 
-  debug(...args) {
+  debug(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Debug]) {
       this.adapter.log(...this.formatArgs('debug', args));
     }
   }
 
-  system(...args) {
+  system(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.System]) {
       this.adapter.log(...this.formatArgs('system', args));
     }
