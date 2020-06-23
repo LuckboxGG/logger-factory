@@ -1,6 +1,6 @@
 {
   "name": "@luckbox/logger-factory",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Easy to use logger with several levels of logging.",
   "author": "Luckbox",
   "license": "ISC",
