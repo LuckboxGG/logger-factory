@@ -89,11 +89,11 @@ class Logger {
     const date = new Date();
 
     const month: string = ((date.getMonth() + 1).toString()).padStart(2, '0');
-    const day: string = ((date.getDate() + 1).toString()).padStart(2, '0');
-    const hour: string = ((date.getHours() + 1).toString()).padStart(2, '0');
-    const min: string = ((date.getMinutes() + 1).toString()).padStart(2, '0');
-    const sec: string = ((date.getSeconds() + 1).toString()).padStart(2, '0');
-    const msec: string = ((date.getMilliseconds() + 1).toString()).padStart(3, '0');
+    const day: string = date.getDate().toString().padStart(2, '0');
+    const hour: string = date.getHours().toString().padStart(2, '0');
+    const min: string = date.getMinutes().toString().padStart(2, '0');
+    const sec: string = date.getSeconds().toString().padStart(2, '0');
+    const msec: string = date.getMilliseconds().toString().padStart(3, '0');
 
     const str = `(${date.getFullYear()}/${month}/${day} ${hour}:${min}:${sec}.${msec})`;
 
