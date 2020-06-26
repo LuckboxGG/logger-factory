@@ -3,7 +3,7 @@ import { isPlainObject } from 'lodash';
 import { LoggerAdapter } from './adapters/LoggerAdapter';
 
 enum SupportedLogLevels {
-  Off = 'off',
+  Silent = 'silent',
   System = 'system',
   Error = 'error',
   Warn = 'warn',
@@ -12,7 +12,7 @@ enum SupportedLogLevels {
 }
 
 const LOG_LEVEL_PRIORITIES = {
-  [SupportedLogLevels.Off]: 0,
+  [SupportedLogLevels.Silent]: 0,
   [SupportedLogLevels.System]: 1,
   [SupportedLogLevels.Error]: 2,
   [SupportedLogLevels.Warn]: 3,

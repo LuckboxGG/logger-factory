@@ -8,7 +8,7 @@ interface ConstructorParams {
 }
 
 enum SupportedAdapters {
-  Console = 'console'
+  Console = 'console',
 }
 
 class LoggerFactory {
@@ -16,15 +16,21 @@ class LoggerFactory {
 
   private readonly adapter: any;
 
-  constructor({ logLevel, adapter }: ConstructorParams) {
-    this.logLevel = logLevel as SupportedLogLevels;
+  constructor({
+    logLevel = SupportedLogLevels.Warn,
+    adapter = SupportedAdapters.Console,
+  } = {} as ConstructorParams) {
+    const supportedLogLevelValues = Object.values(SupportedLogLevels);
+    assert(supportedLogLevelValues.includes(logLevel), `Invalid loglevel provided - ${logLevel}. Supported: ${supportedLogLevelValues}`);
+    this.logLevel = logLevel;
 
+    const providedAdapter = adapter.toString().toLowerCase();
     const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
     assert(
-      supportedAdapterValues.includes(adapter.toLowerCase()),
-      `Invalid adapter - ${adapter}. Supported: ${Object.values(supportedAdapterValues).join(',')}`,
+      supportedAdapterValues.includes(providedAdapter),
+      `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
     );
-    switch (adapter.toLowerCase()) {
+    switch (providedAdapter) {
       case SupportedAdapters.Console:
         this.adapter = ConsoleLoggerAdapter; break;
     }
