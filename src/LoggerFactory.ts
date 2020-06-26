@@ -2,13 +2,13 @@ import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
 
-interface ConstructorParams {
-  logLevel: SupportedLogLevels,
-  adapter: string,
-}
-
 enum SupportedAdapters {
   Console = 'console',
+}
+
+interface ConstructorParams {
+  logLevel: SupportedLogLevels,
+  adapter: SupportedAdapters,
 }
 
 class LoggerFactory {
@@ -24,15 +24,15 @@ class LoggerFactory {
     assert(supportedLogLevelValues.includes(logLevel), `Invalid loglevel provided - ${logLevel}. Supported: ${supportedLogLevelValues}`);
     this.logLevel = logLevel;
 
-    const providedAdapter = adapter.toString().toLowerCase();
     const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
     assert(
-      supportedAdapterValues.includes(providedAdapter),
+      supportedAdapterValues.includes(adapter),
       `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
     );
-    switch (providedAdapter) {
+    switch (adapter) {
       case SupportedAdapters.Console:
-        this.adapter = ConsoleLoggerAdapter; break;
+        this.adapter = ConsoleLoggerAdapter;
+        break;
     }
   }
 
