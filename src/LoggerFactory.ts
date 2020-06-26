@@ -17,7 +17,12 @@ class LoggerFactory {
   private readonly adapter: any;
 
   constructor({ logLevel, adapter }: ConstructorParams) {
-    this.logLevel = logLevel as SupportedLogLevels;
+    if (!Object.values(SupportedLogLevels).includes(logLevel)) {
+      console.log(`Invalid loglevel provided - ${logLevel}, falling back to ${SupportedLogLevels.Silent}`);
+      this.logLevel = SupportedLogLevels.Silent;
+    } else {
+      this.logLevel = logLevel as SupportedLogLevels;
+    }
 
     const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
     assert(
