@@ -18,8 +18,8 @@ create two Logger instances with `Classname` and `Classname2` prefixes respectiv
 
 ### LoggerFactory methods
 
-- `create({ logLevel, adapter})` - Creates an instance of the requested adapter (specified by `adapter`) 
-with the provided `logLevel`. List of supported log levels is provided below in this README.  
+- `create({ logLevel, adapter})` - Creates an instance of the requested adapter (specified by `adapter`, defaults to `console`) 
+with the provided `logLevel` (defaults to `warn`). List of supported log levels is provided below in this README.  
 
 ### Adapters
 

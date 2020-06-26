@@ -22,7 +22,7 @@ class LoggerFactory {
   } = {} as ConstructorParams) {
     const supportedLogLevelValues = Object.values(SupportedLogLevels);
     assert(supportedLogLevelValues.includes(logLevel), `Invalid loglevel provided - ${logLevel}. Supported: ${supportedLogLevelValues}`);
-    this.logLevel = logLevel as SupportedLogLevels;
+    this.logLevel = logLevel;
 
     const providedAdapter = adapter.toString().toLowerCase();
     const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
