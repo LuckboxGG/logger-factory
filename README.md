@@ -1,4 +1,3 @@
-### Status
 [![Build Status](https://travis-ci.org/nikksan/logger-factory.png)](https://travis-ci.org/nikksan/logger-factory)
 
 # Logger Factory
