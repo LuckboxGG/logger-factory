@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/nikksan/logger-factory.png)](https://travis-ci.org/nikksan/logger-factory)
 
+[![Coverage Status](https://coveralls.io/repos/github/nikksan/logger-factory/badge.svg?branch=master)](https://coveralls.io/github/nikksan/logger-factory?branch=master)
+
 # Logger Factory
 
 This logger factory produces Logger instances that can have different prefixes,
