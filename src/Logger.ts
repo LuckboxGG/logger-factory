@@ -1,5 +1,3 @@
-import { isPlainObject } from 'lodash';
-
 import { LoggerAdapter } from './adapters/LoggerAdapter';
 
 enum SupportedLogLevels {
@@ -23,7 +21,7 @@ const LOG_LEVEL_PRIORITIES = {
 interface ConstructorParams {
   logLevel: string,
   adapter: LoggerAdapter,
-  prefix: string,
+  prefix?: string,
 }
 
 class Logger {
@@ -31,73 +29,51 @@ class Logger {
 
   private readonly adapter: LoggerAdapter;
 
-  private readonly prefix: string;
+  private readonly prefix?: string;
 
   constructor({ logLevel, adapter, prefix }: ConstructorParams) {
     this.priority = LOG_LEVEL_PRIORITIES[logLevel];
     this.adapter = adapter;
-
     this.prefix = prefix;
   }
 
   error(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Error]) {
-      this.adapter.log(...this.formatArgs('error', args));
+      this.adapter.log(this.constructLogMessage(args, SupportedLogLevels.Error));
     }
   }
 
   warn(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Warn]) {
-      this.adapter.log(...this.formatArgs('warn', args));
+      this.adapter.log(this.constructLogMessage(args, SupportedLogLevels.Warn));
     }
   }
 
   info(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Info]) {
-      this.adapter.log(...this.formatArgs('info', args));
+      this.adapter.log(this.constructLogMessage(args, SupportedLogLevels.Info));
     }
   }
 
   debug(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Debug]) {
-      this.adapter.log(...this.formatArgs('debug', args));
+      this.adapter.log(this.constructLogMessage(args, SupportedLogLevels.Debug));
     }
   }
 
   system(...args: Array<any>) {
     if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.System]) {
-      this.adapter.log(...this.formatArgs('system', args));
+      this.adapter.log(this.constructLogMessage(args, SupportedLogLevels.System));
     }
   }
 
-  private formatArgs(levelPrefix: string, args: Array<any>) {
-    let formattedArgs = [];
-    formattedArgs.push(this.getFormattedDate());
-    formattedArgs.push(`[${this.prefix}]`);
-
-    formattedArgs.push(`[${levelPrefix.toUpperCase()}]`);
-
-    formattedArgs = [
-      ...formattedArgs,
-      ...args.map((anArg) => (isPlainObject(anArg) ? JSON.stringify(anArg) : anArg)),
-    ];
-
-    return formattedArgs;
-  }
-
-  private getFormattedDate(): string {
-    const date = new Date();
-
-    const month: string = ((date.getMonth() + 1).toString()).padStart(2, '0');
-    const day: string = date.getDate().toString().padStart(2, '0');
-    const hour: string = date.getHours().toString().padStart(2, '0');
-    const min: string = date.getMinutes().toString().padStart(2, '0');
-    const sec: string = date.getSeconds().toString().padStart(2, '0');
-    const msec: string = date.getMilliseconds().toString().padStart(3, '0');
-
-    const str = `(${date.getFullYear()}/${month}/${day} ${hour}:${min}:${sec}.${msec})`;
-
-    return str;
+  private constructLogMessage(args: Array<any>, level: SupportedLogLevels) {
+    return {
+      args,
+      level,
+      date: new Date(),
+      prefix: this.prefix,
+    };
   }
 }
 

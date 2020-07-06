@@ -36,7 +36,11 @@ class LoggerFactory {
     }
   }
 
-  create(prefix: string) {
+  create(prefix?: string) {
+    if (prefix !== undefined) {
+      assert(typeof prefix === 'string' && prefix.length > 0, `Invalid prefix provided - ${prefix}. It must be non-empty string or undefined`);
+    }
+
     return new Logger({
       adapter: new this.adapter(),
       logLevel: this.logLevel,
