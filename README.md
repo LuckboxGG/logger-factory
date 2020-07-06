@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/nikksan/logger-factory.svg?branch=master)](https://travis-ci.org/nikksan/logger-factory)
+[![Build Status](https://travis-ci.org/LuckboxGG/logger-factory.svg?branch=master)](https://travis-ci.org/LuckboxGG/logger-factory)
 
-[![Coverage Status](https://coveralls.io/repos/github/nikksan/logger-factory/badge.svg?branch=master)](https://coveralls.io/github/nikksan/logger-factory?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/LuckboxGG/logger-factory/badge.svg?branch=master)](https://coveralls.io/github/LuckboxGG/logger-factory?branch=master)
 
 # Logger Factory
 
