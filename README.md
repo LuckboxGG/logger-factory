@@ -1,6 +1,9 @@
+### Status
+[![Build Status](https://travis-ci.org/nikksan/logger-factory.png)](https://travis-ci.org/nikksan/logger-factory)
+
 # Logger Factory
 
-This logger factory produces Logger instances that can have different prefixes, 
+This logger factory produces Logger instances that can have different prefixes,
 but all share the same logging level that is set for the LoggerFactory instance.
 
 ### Usage
@@ -13,17 +16,17 @@ const infoLogger = infoLoggerFactory.create('Classname');
 const anotherInfoLogger = infoLoggerFactory.create('Classname2');
 ```
 
-This example creates a LoggerFactory instance of log level `info`, and that instance is used to 
+This example creates a LoggerFactory instance of log level `info`, and that instance is used to
 create two Logger instances with `Classname` and `Classname2` prefixes respectively.
 
 ### LoggerFactory methods
 
-- `create({ logLevel, adapter})` - Creates an instance of the requested adapter (specified by `adapter`, defaults to `console`) 
-with the provided `logLevel` (defaults to `warn`). List of supported log levels is provided below in this README.  
+- `create({ logLevel, adapter})` - Creates an instance of the requested adapter (specified by `adapter`, defaults to `console`)
+with the provided `logLevel` (defaults to `warn`). List of supported log levels is provided below in this README.
 
 ### Adapters
 
-Currently, only one adapter is supported - a console logger, that can be instanced by providing `console` 
+Currently, only one adapter is supported - a console logger, that can be instanced by providing `console`
 as adapter value.
 
 ### Log levels
@@ -44,7 +47,7 @@ for example if you set `warn` as log level, `off`, `system` and `error` are also
 
 The following methods can be called on a Logger instance:
 
-- `system(message)` - The provided `message` is logged via `console.log` if the configured log level allows 
+- `system(message)` - The provided `message` is logged via `console.log` if the configured log level allows
 - `error(message)` - The provided `message` is logged via `console.error` if the configured log level allows
 - `warn(message)` - The provided `message` is logged via `console.warn` if the configured log level allows
 - `info(message)` - The provided `message` is logged via `console.info` if the configured log level allows
