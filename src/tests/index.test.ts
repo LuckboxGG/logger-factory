@@ -54,13 +54,13 @@ describe('LoggerFactory', () => {
 
   describe('Logger creation', () => {
     it.each([
-      undefined, null, '', 1,
+      null, '', 1,
     ])('should throw AssertionError when passing prefix - %s', (prefix) => {
       expect(() => loggerFactory.create(prefix as string)).toThrow(AssertionError);
     });
 
     it.each([
-      'MyClass', 'MyOtherClass',
+      undefined, 'MyClass', 'MyOtherClass',
     ])('should not throw AssertionError when passing prefix - %s', (prefix) => {
       expect(() => loggerFactory.create(prefix)).not.toThrow();
     });
@@ -120,17 +120,9 @@ describe('LoggerFactory', () => {
     });
 
     it('should provide the formatted date as first param', () => {
-      const mockDate = new Date('Tue, 23 Jun 2020 14:34:56');
-      const RealDate = Date;
-      (global as any).Date = class extends RealDate {
-        constructor() {
-          super();
-          return mockDate;
-        }
-      };
-
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
       logger.info('test');
-      global.Date = RealDate;
+      restoreDate();
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[0]).toEqual('(2020/06/23 14:34:56.000)');
@@ -141,6 +133,19 @@ describe('LoggerFactory', () => {
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[1]).toEqual('[MyClass]');
+    });
+
+    it('should not provide prefix when it is omitted', () => {
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      const noPrefixLogger = loggerFactory.create();
+      noPrefixLogger.info('test');
+      restoreDate();
+
+      const lastCallArgs = spiedConsoleLog.mock.calls.pop();
+      expect(lastCallArgs[0]).toEqual('(2020/06/23 14:34:56.000)');
+      expect(lastCallArgs[1]).toEqual('[INFO]');
+      expect(lastCallArgs[2]).toEqual('test');
+      expect(lastCallArgs.length).toEqual(3);
     });
 
     it('should provide the upper-cased level as third param', () => {
@@ -169,3 +174,19 @@ describe('LoggerFactory', () => {
     });
   });
 });
+
+
+let RealDate: any;
+function mockDate(date: Date) {
+  RealDate = Date;
+  (global as any).Date = class extends RealDate {
+    constructor() {
+      super();
+      return date;
+    }
+  };
+}
+
+function restoreDate() {
+  global.Date = RealDate;
+}

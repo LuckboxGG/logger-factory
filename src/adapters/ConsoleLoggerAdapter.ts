@@ -10,7 +10,9 @@ class ConsoleLoggerAdapter implements LoggerAdapter {
   private formatMessage(message: LogMessage) {
     let formattedArgs = [];
     formattedArgs.push(this.formatDate(message.date));
-    formattedArgs.push(`[${message.prefix}]`);
+    if (message.prefix !== undefined) {
+      formattedArgs.push(`[${message.prefix}]`);
+    }
     formattedArgs.push(`[${message.level.toUpperCase()}]`);
 
     formattedArgs = [

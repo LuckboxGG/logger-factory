@@ -21,7 +21,7 @@ const LOG_LEVEL_PRIORITIES = {
 interface ConstructorParams {
   logLevel: string,
   adapter: LoggerAdapter,
-  prefix: string,
+  prefix?: string,
 }
 
 class Logger {
@@ -29,12 +29,11 @@ class Logger {
 
   private readonly adapter: LoggerAdapter;
 
-  private readonly prefix: string;
+  private readonly prefix?: string;
 
   constructor({ logLevel, adapter, prefix }: ConstructorParams) {
     this.priority = LOG_LEVEL_PRIORITIES[logLevel];
     this.adapter = adapter;
-
     this.prefix = prefix;
   }
 

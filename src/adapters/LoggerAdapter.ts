@@ -3,7 +3,7 @@ import { SupportedLogLevels } from '../Logger';
 interface LogMessage {
   args: Array<any>,
   level: SupportedLogLevels,
-  prefix: string,
+  prefix?: string,
   date: Date,
 }
 
