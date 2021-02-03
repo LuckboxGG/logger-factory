@@ -35,7 +35,7 @@
     }
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
     "@luckbox/eslint-rules": "^3.0.1",
