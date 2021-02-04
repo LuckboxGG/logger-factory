@@ -1,14 +1,17 @@
 import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
+import SentryLoggerAdapter, { SentryConfig } from './adapters/SentryLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
 
 enum SupportedAdapters {
   Console = 'console',
+  Sentry = 'sentry',
 }
 
 interface ConstructorParams {
   logLevel: SupportedLogLevels,
   adapter: SupportedAdapters,
+  adapterConfig?: SentryConfig,
 }
 
 class LoggerFactory {
@@ -16,9 +19,12 @@ class LoggerFactory {
 
   private readonly adapter: any;
 
+  private readonly adapterConfig: SentryConfig;
+
   constructor({
     logLevel = SupportedLogLevels.Warn,
     adapter = SupportedAdapters.Console,
+    adapterConfig,
   } = {} as ConstructorParams) {
     const supportedLogLevelValues = Object.values(SupportedLogLevels);
     assert(supportedLogLevelValues.includes(logLevel), `Invalid loglevel provided - ${logLevel}. Supported: ${supportedLogLevelValues}`);
@@ -33,6 +39,13 @@ class LoggerFactory {
       case SupportedAdapters.Console:
         this.adapter = ConsoleLoggerAdapter;
         break;
+      case SupportedAdapters.Sentry:
+        if (!adapterConfig) {
+          throw new Error('Adapter config required!');
+        }
+        this.adapter = SentryLoggerAdapter;
+        this.adapterConfig = adapterConfig;
+        break;
     }
   }
 
@@ -42,7 +55,7 @@ class LoggerFactory {
     }
 
     return new Logger({
-      adapter: new this.adapter(),
+      adapter: new this.adapter(this.adapterConfig),
       logLevel: this.logLevel,
       prefix,
     });

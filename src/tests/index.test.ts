@@ -40,11 +40,30 @@ describe('LoggerFactory', () => {
     });
 
     it.each([
-      ...Object.values(Adapters), undefined,
-    ])('should not throw AssertionError when passing adapter - %s', (adapter) => {
+      Adapters.Console, undefined,
+    ])('should not throw AssertionError when passing adapter without adapterConfig - %s', (adapter) => {
       expect(() => new LoggerFactory({
         ...constructorParams,
         adapter: adapter as Adapters,
+      })).not.toThrow();
+    });
+
+    it(`should throw when calling ${Adapters.Sentry} without adapterConfig`, () => {
+      expect(() => new LoggerFactory({
+        ...constructorParams,
+        adapter: Adapters.Sentry as Adapters,
+      })).toThrow();
+    });
+
+    it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
+      expect(() => new LoggerFactory({
+        ...constructorParams,
+        adapter: Adapters.Sentry as Adapters,
+        adapterConfig: {
+          dsn: 'https://somerandomstring@sentry.yourserver.com/PROJECT_ID',
+          tracesSampleRate: 1.0,
+          environment: 'production',
+        },
       })).not.toThrow();
     });
   });
