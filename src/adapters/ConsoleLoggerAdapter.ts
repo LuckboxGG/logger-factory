@@ -1,8 +1,15 @@
 /* eslint-disable no-console */
 import { isPlainObject } from 'lodash';
-import { LoggerAdapter, LogMessage } from './LoggerAdapter';
+import { LOG_LEVEL_PRIORITIES, LoggerAdapter, LoggerAdapterConfig, LogMessage } from './LoggerAdapter';
+import { LogLevels } from '../LoggerFactory';
 
 class ConsoleLoggerAdapter implements LoggerAdapter {
+  public readonly logLevel: number;
+
+  constructor(props: LoggerAdapterConfig) {
+    this.logLevel = LOG_LEVEL_PRIORITIES[props.logLevel];
+  }
+
   public log(message: LogMessage) {
     console.log(...this.formatMessage(message));
   }

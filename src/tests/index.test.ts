@@ -7,30 +7,15 @@ describe('LoggerFactory', () => {
     logLevel: LogLevels.Debug,
     adapters: [{
       name: Adapters.Console,
+      config: {
+        logLevel: LogLevels.Debug,
+      },
     }],
   };
 
   describe('Factory construction', () => {
     it('should not throw when calling without params', () => {
       expect(() => new LoggerFactory()).not.toThrow();
-    });
-
-    it.each([
-      null, 'unknown',
-    ])('should throw AssertionError when passing level - %s', (level) => {
-      expect(() => new LoggerFactory({
-        ...constructorParams,
-        logLevel: level as LogLevels,
-      })).toThrow(AssertionError);
-    });
-
-    it.each([
-      ...Object.values(LogLevels), undefined,
-    ])('should not throw when passing level - %s', (level) => {
-      expect(() => new LoggerFactory({
-        ...constructorParams,
-        logLevel: level,
-      })).not.toThrow();
     });
 
     it.each([
@@ -49,6 +34,9 @@ describe('LoggerFactory', () => {
         ...constructorParams,
         adapters: [{
           name: Adapters.Console,
+          config: {
+            logLevel: LogLevels.Warn,
+          }
         }],
       })).not.toThrow();
     });
@@ -71,6 +59,7 @@ describe('LoggerFactory', () => {
             dsn: 'https://somerandomstring@sentry.yourserver.com/42',
             tracesSampleRate: 1.0,
             environment: 'production',
+            logLevel: LogLevels.Warn,
           },
         }],
       })).not.toThrow();
@@ -115,9 +104,11 @@ describe('LoggerFactory', () => {
       const nonOverlappedMethods = orderedLogLevels.slice(index + 1);
 
       const customLevelLoggerFactory = new LoggerFactory({
-        logLevel: level,
         adapters: [{
           name: Adapters.Console,
+          config: {
+            logLevel: level,
+          },
         }],
       });
       const customLogger = customLevelLoggerFactory.create('MyClass');
@@ -138,9 +129,11 @@ describe('LoggerFactory', () => {
     }
 
     const pointlessLoggerFactory = new LoggerFactory({
-      logLevel: LogLevels.Silent,
       adapters: [{
         name: Adapters.Console,
+        config: {
+          logLevel: LogLevels.Silent,
+        },
       }],
     });
     const pointlessLogger = pointlessLoggerFactory.create('MyClass');
@@ -221,13 +214,13 @@ describe('LoggerFactory', () => {
       const nonOverlappedMethods = orderedLogLevels.slice(index + 1);
 
       const customLevelLoggerFactory = new LoggerFactory({
-        logLevel: level,
         adapters: [{
           name: Adapters.Sentry,
           config: {
             dsn: 'https://somerandomstring@sentry.yourserver.com/42',
             tracesSampleRate: 1.0,
             environment: 'test',
+            logLevel: level,
           },
         }],
       });
@@ -249,13 +242,13 @@ describe('LoggerFactory', () => {
     }
 
     const pointlessLoggerFactory = new LoggerFactory({
-      logLevel: LogLevels.Silent,
       adapters: [{
         name: Adapters.Sentry,
         config: {
           dsn: 'https://somerandomstring@sentry.yourserver.com/42',
           tracesSampleRate: 1.0,
           environment: 'test',
+          logLevel: LogLevels.Silent,
         },
       }],
     });
@@ -268,10 +261,10 @@ describe('LoggerFactory', () => {
     });
 
     const sentryLoggerFactory = new LoggerFactory({
-      logLevel: LogLevels.Info,
       adapters: [{
         name: Adapters.Sentry,
         config: {
+          logLevel: LogLevels.Info,
           dsn: 'https://somerandomstring@sentry.yourserver.com/42',
           tracesSampleRate: 1.0,
           environment: 'test',
@@ -319,10 +312,12 @@ describe('LoggerFactory', () => {
 
     it('should use all configured adapters', () => {
       const multiAdapterFactory = new LoggerFactory({
-        logLevel: LogLevels.Info,
         adapters: [
           {
             name: Adapters.Console,
+            config: {
+              logLevel: LogLevels.Info,
+            },
           },
           {
             name: Adapters.Sentry,
@@ -330,6 +325,33 @@ describe('LoggerFactory', () => {
               dsn: 'https://somerandomstring@sentry.yourserver.com/42',
               tracesSampleRate: 1.0,
               environment: 'production',
+              logLevel: LogLevels.Warn,
+            },
+          }],
+      });
+      const multiAdapterLogger = multiAdapterFactory.create('MyClass');
+      multiAdapterLogger.warn('test');
+
+      expect(spiedConsoleLog).toHaveBeenCalled();
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+    });
+
+    it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
+      const multiAdapterFactory = new LoggerFactory({
+        adapters: [
+          {
+            name: Adapters.Console,
+            config: {
+              logLevel: LogLevels.Info,
+            },
+          },
+          {
+            name: Adapters.Sentry,
+            config: {
+              dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+              tracesSampleRate: 1.0,
+              environment: 'production',
+              logLevel: LogLevels.Warn,
             },
           }],
       });
@@ -337,7 +359,7 @@ describe('LoggerFactory', () => {
       multiAdapterLogger.info('test');
 
       expect(spiedConsoleLog).toHaveBeenCalled();
-      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+      expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
     });
   });
 });

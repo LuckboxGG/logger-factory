@@ -1,16 +1,22 @@
 /* eslint-disable no-console */
 import * as Sentry from '@sentry/node';
 import { isPlainObject } from 'lodash';
-import { LoggerAdapter, LogMessage } from './LoggerAdapter';
+import { LOG_LEVEL_PRIORITIES, LoggerAdapter, LogMessage } from './LoggerAdapter';
+import { LogLevels } from '../LoggerFactory';
 
 type Config = {
   dsn: string;
   tracesSampleRate: number;
   environment: string;
+  logLevel: LogLevels;
 }
 
 class SentryLoggerAdapter implements LoggerAdapter {
+  public readonly logLevel: number;
+
   constructor(props: Config) {
+    this.logLevel = LOG_LEVEL_PRIORITIES[props.logLevel];
+
     Sentry.init({
       dsn: props.dsn,
       tracesSampleRate: props.tracesSampleRate,

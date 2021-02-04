@@ -1,4 +1,4 @@
-import { LoggerAdapter } from './adapters/LoggerAdapter';
+import { LoggerAdapter, LOG_LEVEL_PRIORITIES } from './adapters/LoggerAdapter';
 
 enum SupportedLogLevels {
   Silent = 'silent',
@@ -8,15 +8,6 @@ enum SupportedLogLevels {
   Info = 'info',
   Debug = 'debug'
 }
-
-const LOG_LEVEL_PRIORITIES = {
-  [SupportedLogLevels.Silent]: 0,
-  [SupportedLogLevels.System]: 1,
-  [SupportedLogLevels.Error]: 2,
-  [SupportedLogLevels.Warn]: 3,
-  [SupportedLogLevels.Info]: 4,
-  [SupportedLogLevels.Debug]: 5,
-};
 
 interface ConstructorParams {
   logLevel: string,
@@ -31,47 +22,46 @@ class Logger {
 
   private readonly prefix?: string;
 
-  constructor({ logLevel, prefix, adapters }: ConstructorParams) {
-    this.priority = LOG_LEVEL_PRIORITIES[logLevel];
+  constructor({ prefix, adapters }: ConstructorParams) {
     this.adapters = adapters;
     this.prefix = prefix;
   }
 
   error(...args: Array<any>) {
-    if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Error]) {
-      for (const adapter of this.adapters) {
+    for (const adapter of this.adapters) {
+      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Error]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Error));
       }
     }
   }
 
   warn(...args: Array<any>) {
-    if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Warn]) {
-      for (const adapter of this.adapters) {
+    for (const adapter of this.adapters) {
+      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Warn]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Warn));
       }
     }
   }
 
   info(...args: Array<any>) {
-    if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Info]) {
-      for (const adapter of this.adapters) {
+    for (const adapter of this.adapters) {
+      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Info]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Info));
       }
     }
   }
 
   debug(...args: Array<any>) {
-    if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Debug]) {
-      for (const adapter of this.adapters) {
-        adapter.log(this.constructLogMessage(args, SupportedLogLevels.Info));
+    for (const adapter of this.adapters) {
+      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Debug]) {
+        adapter.log(this.constructLogMessage(args, SupportedLogLevels.Debug));
       }
     }
   }
 
   system(...args: Array<any>) {
-    if (this.priority >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.System]) {
-      for (const adapter of this.adapters) {
+    for (const adapter of this.adapters) {
+      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.System]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.System));
       }
     }

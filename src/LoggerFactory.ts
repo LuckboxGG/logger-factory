@@ -2,6 +2,7 @@ import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
 import SentryLoggerAdapter, { SentryConfig } from './adapters/SentryLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
+import { LoggerAdapterConfig } from './adapters/LoggerAdapter';
 
 enum SupportedAdapters {
   Console = 'console',
@@ -10,11 +11,10 @@ enum SupportedAdapters {
 
 type AdapterSomethingBetterNamed = {
   name: SupportedAdapters;
-  config?: SentryConfig;
+  config?: SentryConfig | LoggerAdapterConfig;
 }
 
 interface ConstructorParams {
-  logLevel: SupportedLogLevels,
   adapters: Array<AdapterSomethingBetterNamed>,
 }
 
@@ -24,14 +24,27 @@ class LoggerFactory {
   private adapters: Array<any>;
 
   constructor({
-    logLevel = SupportedLogLevels.Warn,
     adapters = [],
   } = {} as ConstructorParams) {
-    const supportedLogLevelValues = Object.values(SupportedLogLevels);
-    assert(supportedLogLevelValues.includes(logLevel), `Invalid loglevel provided - ${logLevel}. Supported: ${supportedLogLevelValues}`);
-    this.logLevel = logLevel;
-
-    this.constructAdapters(adapters);
+    this.adapters = [];
+    for (const adapter of adapters) {
+      const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
+      assert(
+        supportedAdapterValues.includes(adapter.name),
+        `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
+      );
+      switch (adapter.name) {
+        case SupportedAdapters.Console:
+          this.adapters.push(new ConsoleLoggerAdapter(adapter.config as LoggerAdapterConfig));
+          break;
+        case SupportedAdapters.Sentry:
+          if (!adapter.config) {
+            throw new Error('Adapter config required!');
+          }
+          this.adapters.push(new SentryLoggerAdapter(adapter.config as SentryConfig));
+          break;
+      }
+    }
   }
 
   create(prefix?: string) {
@@ -44,28 +57,6 @@ class LoggerFactory {
       logLevel: this.logLevel,
       prefix,
     });
-  }
-
-  private constructAdapters(adapters: Array<AdapterSomethingBetterNamed>) {
-    this.adapters = [];
-    for (const adapter of adapters) {
-      const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
-      assert(
-        supportedAdapterValues.includes(adapter.name),
-        `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
-      );
-      switch (adapter.name) {
-        case SupportedAdapters.Console:
-          this.adapters.push(new ConsoleLoggerAdapter());
-          break;
-        case SupportedAdapters.Sentry:
-          if (!adapter.config) {
-            throw new Error('Adapter config required!');
-          }
-          this.adapters.push(new SentryLoggerAdapter(adapter.config));
-          break;
-      }
-    }
   }
 }
 
