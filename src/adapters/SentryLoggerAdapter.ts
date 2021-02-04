@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import * as Sentry from '@sentry/node';
+import { isPlainObject } from 'lodash';
 import { LoggerAdapter, LogMessage } from './LoggerAdapter';
-import MessageFormatter from '../MessageFormatter';
 
 type Config = {
   dsn: string;
@@ -15,16 +15,34 @@ class SentryLoggerAdapter implements LoggerAdapter {
       dsn: props.dsn,
       tracesSampleRate: props.tracesSampleRate,
       environment: props.environment,
-      debug: true,
+      // debug: true,
     });
   }
 
-  log(message: LogMessage) {
-    const messageFormatter = new MessageFormatter();
-    const formattedMessage = messageFormatter.format(message).join();
+  public log(message: LogMessage) {
+    let formattedArgs = [];
+    formattedArgs.push(this.formatDate(message.date));
+    formattedArgs = [
+      ...formattedArgs,
+      ...message.args.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
+    ];
+
     Sentry.setTag('prefix', message.prefix);
-    Sentry.captureMessage(formattedMessage);
-    // todo sentry implementation
+    Sentry.setTag('logLevel', message.level);
+    Sentry.captureMessage(formattedArgs.join(' '));
+  }
+
+  private formatDate(date: Date): string {
+    const month: string = ((date.getMonth() + 1).toString()).padStart(2, '0');
+    const day: string = date.getDate().toString().padStart(2, '0');
+    const hour: string = date.getHours().toString().padStart(2, '0');
+    const min: string = date.getMinutes().toString().padStart(2, '0');
+    const sec: string = date.getSeconds().toString().padStart(2, '0');
+    const msec: string = date.getMilliseconds().toString().padStart(3, '0');
+
+    const str = `(${date.getFullYear()}/${month}/${day} ${hour}:${min}:${sec}.${msec})`;
+
+    return str;
   }
 }
 

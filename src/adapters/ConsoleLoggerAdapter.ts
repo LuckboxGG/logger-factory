@@ -3,7 +3,7 @@ import { isPlainObject } from 'lodash';
 import { LoggerAdapter, LogMessage } from './LoggerAdapter';
 
 class ConsoleLoggerAdapter implements LoggerAdapter {
-  log(message: LogMessage) {
+  public log(message: LogMessage) {
     console.log(...this.formatMessage(message));
   }
 
