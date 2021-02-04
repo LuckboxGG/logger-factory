@@ -5,7 +5,7 @@ type Config = {
   logLevel: LogLevels;
 }
 
-const LOG_LEVEL_PRIORITIES = {
+const LogLevelPriorities = {
   [SupportedLogLevels.Silent]: 0,
   [SupportedLogLevels.System]: 1,
   [SupportedLogLevels.Error]: 2,
@@ -30,5 +30,5 @@ export {
   LoggerAdapter,
   LogMessage,
   Config as LoggerAdapterConfig,
-  LOG_LEVEL_PRIORITIES,
+  LogLevelPriorities,
 };

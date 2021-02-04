@@ -1,4 +1,4 @@
-import { LoggerAdapter, LOG_LEVEL_PRIORITIES } from './adapters/LoggerAdapter';
+import { LoggerAdapter, LogLevelPriorities } from './adapters/LoggerAdapter';
 
 enum SupportedLogLevels {
   Silent = 'silent',
@@ -16,8 +16,6 @@ interface ConstructorParams {
 }
 
 class Logger {
-  protected readonly priority: number;
-
   private readonly adapters: Array<LoggerAdapter>;
 
   private readonly prefix?: string;
@@ -29,7 +27,7 @@ class Logger {
 
   error(...args: Array<any>) {
     for (const adapter of this.adapters) {
-      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Error]) {
+      if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Error]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Error));
       }
     }
@@ -37,7 +35,7 @@ class Logger {
 
   warn(...args: Array<any>) {
     for (const adapter of this.adapters) {
-      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Warn]) {
+      if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Warn]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Warn));
       }
     }
@@ -45,7 +43,7 @@ class Logger {
 
   info(...args: Array<any>) {
     for (const adapter of this.adapters) {
-      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Info]) {
+      if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Info]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Info));
       }
     }
@@ -53,7 +51,7 @@ class Logger {
 
   debug(...args: Array<any>) {
     for (const adapter of this.adapters) {
-      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.Debug]) {
+      if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Debug]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Debug));
       }
     }
@@ -61,7 +59,7 @@ class Logger {
 
   system(...args: Array<any>) {
     for (const adapter of this.adapters) {
-      if (adapter.logLevel >= LOG_LEVEL_PRIORITIES[SupportedLogLevels.System]) {
+      if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.System]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.System));
       }
     }

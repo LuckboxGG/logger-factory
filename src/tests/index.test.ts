@@ -56,7 +56,7 @@ describe('LoggerFactory', () => {
         adapters: [{
           name: Adapters.Sentry,
           config: {
-            dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+            dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
             tracesSampleRate: 1.0,
             environment: 'production',
             logLevel: LogLevels.Warn,
@@ -217,7 +217,7 @@ describe('LoggerFactory', () => {
         adapters: [{
           name: Adapters.Sentry,
           config: {
-            dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+            dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
             tracesSampleRate: 1.0,
             environment: 'test',
             logLevel: level,
@@ -245,7 +245,7 @@ describe('LoggerFactory', () => {
       adapters: [{
         name: Adapters.Sentry,
         config: {
-          dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+          dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
           tracesSampleRate: 1.0,
           environment: 'test',
           logLevel: LogLevels.Silent,
@@ -265,7 +265,7 @@ describe('LoggerFactory', () => {
         name: Adapters.Sentry,
         config: {
           logLevel: LogLevels.Info,
-          dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+          dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
           tracesSampleRate: 1.0,
           environment: 'test',
         },
@@ -322,7 +322,7 @@ describe('LoggerFactory', () => {
           {
             name: Adapters.Sentry,
             config: {
-              dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+              dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
               tracesSampleRate: 1.0,
               environment: 'production',
               logLevel: LogLevels.Warn,
@@ -348,7 +348,7 @@ describe('LoggerFactory', () => {
           {
             name: Adapters.Sentry,
             config: {
-              dsn: 'https://somerandomstring@sentry.yourserver.com/42',
+              dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
               tracesSampleRate: 1.0,
               environment: 'production',
               logLevel: LogLevels.Warn,
