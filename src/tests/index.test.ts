@@ -10,6 +10,7 @@ describe('LoggerFactory', () => {
       tracesSampleRate: 1.0,
       environment: 'production',
       logLevel: LogLevels.Warn,
+      debug: false,
     },
   };
 
@@ -71,6 +72,25 @@ describe('LoggerFactory', () => {
         dsn: sentryAdapterSettings.config.dsn,
         tracesSampleRate: sentryAdapterSettings.config.tracesSampleRate,
         environment: sentryAdapterSettings.config.environment,
+      }));
+    });
+
+    it.skip('should allow to init sentry in debug mode', () => {
+      const spiedSentryInit = jest.spyOn(Sentry, 'init');
+
+      expect(() => new LoggerFactory({
+        ...constructorParams,
+        adapters: [{
+          ...sentryAdapterSettings,
+          config: {
+            ...sentryAdapterSettings.config,
+            debug: true,
+          },
+        }],
+      })).not.toThrow();
+
+      expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
+        debug: true,
       }));
     });
   });

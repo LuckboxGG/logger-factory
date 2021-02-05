@@ -8,6 +8,7 @@ type Config = {
   tracesSampleRate: number;
   environment: string;
   logLevel: LogLevels;
+  debug?: boolean;
 }
 
 class SentryLoggerAdapter implements LoggerAdapter {
@@ -20,6 +21,7 @@ class SentryLoggerAdapter implements LoggerAdapter {
       dsn: props.dsn,
       tracesSampleRate: props.tracesSampleRate,
       environment: props.environment,
+      debug: Boolean(props.debug),
     });
   }
 
