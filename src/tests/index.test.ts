@@ -3,14 +3,25 @@ import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
 
 describe('LoggerFactory', () => {
+  const sentryAdapterSettings =  {
+    name: Adapters.Sentry,
+    config: {
+      dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
+      tracesSampleRate: 1.0,
+      environment: 'production',
+      logLevel: LogLevels.Warn,
+    },
+  };
+
+  const consoleAdapterSettings = {
+    name: Adapters.Console,
+    config: {
+      logLevel: LogLevels.Debug,
+    },
+  };
+
   const constructorParams = {
-    logLevel: LogLevels.Debug,
-    adapters: [{
-      name: Adapters.Console,
-      config: {
-        logLevel: LogLevels.Debug,
-      },
-    }],
+    adapters: [consoleAdapterSettings],
   };
 
   describe('Factory construction', () => {
@@ -29,40 +40,38 @@ describe('LoggerFactory', () => {
       })).toThrow(AssertionError);
     });
 
-    it(`should not throw AssertionError when passing ${Adapters.Console} adapter without adapterConfig`, () => {
+    it.each([
+      Adapters.Console,
+      Adapters.Sentry,
+    ])('should throw when calling %s without adapterConfig', (adapter) => {
       expect(() => new LoggerFactory({
         ...constructorParams,
         adapters: [{
-          name: Adapters.Console,
-          config: {
-            logLevel: LogLevels.Warn,
-          }
+          name: adapter as Adapters,
         }],
-      })).not.toThrow();
-    });
-
-    it(`should throw when calling ${Adapters.Sentry} without adapterConfig`, () => {
-      expect(() => new LoggerFactory({
-        ...constructorParams,
-        adapters: [{
-          name: Adapters.Sentry,
-        }],
-      })).toThrow();
+      })).toThrow(AssertionError);
     });
 
     it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
       expect(() => new LoggerFactory({
         ...constructorParams,
-        adapters: [{
-          name: Adapters.Sentry,
-          config: {
-            dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-            tracesSampleRate: 1.0,
-            environment: 'production',
-            logLevel: LogLevels.Warn,
-          },
-        }],
+        adapters: [sentryAdapterSettings],
       })).not.toThrow();
+    });
+
+    it('should call Sentry.init with the provided adapterConfig', () => {
+      const spiedSentryInit = jest.spyOn(Sentry, 'init');
+
+      expect(() => new LoggerFactory({
+        ...constructorParams,
+        adapters: [sentryAdapterSettings],
+      })).not.toThrow();
+
+      expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
+        dsn: sentryAdapterSettings.config.dsn,
+        tracesSampleRate: sentryAdapterSettings.config.tracesSampleRate,
+        environment: sentryAdapterSettings.config.environment,
+      }));
     });
   });
 
@@ -217,11 +226,9 @@ describe('LoggerFactory', () => {
 
       const customLevelLoggerFactory = new LoggerFactory({
         adapters: [{
-          name: Adapters.Sentry,
+          ...sentryAdapterSettings,
           config: {
-            dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-            tracesSampleRate: 1.0,
-            environment: 'test',
+            ...sentryAdapterSettings.config,
             logLevel: level,
           },
         }],
@@ -245,11 +252,9 @@ describe('LoggerFactory', () => {
 
     const pointlessLoggerFactory = new LoggerFactory({
       adapters: [{
-        name: Adapters.Sentry,
+        ...sentryAdapterSettings,
         config: {
-          dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-          tracesSampleRate: 1.0,
-          environment: 'test',
+          ...sentryAdapterSettings.config,
           logLevel: LogLevels.Silent,
         },
       }],
@@ -263,21 +268,13 @@ describe('LoggerFactory', () => {
     });
 
     const sentryLoggerFactory = new LoggerFactory({
-      adapters: [{
-        name: Adapters.Sentry,
-        config: {
-          logLevel: LogLevels.Info,
-          dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-          tracesSampleRate: 1.0,
-          environment: 'test',
-        },
-      }],
+      adapters: [sentryAdapterSettings],
     });
     const sentryLogger = sentryLoggerFactory.create('SentryLogger');
 
     it('should contain the formatted date', () => {
       mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
-      sentryLogger.info('test');
+      sentryLogger.warn('test');
       restoreDate();
 
       const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
@@ -285,22 +282,22 @@ describe('LoggerFactory', () => {
     });
 
     it('should set the logLevel as a tag', () => {
-      sentryLogger.info('test');
-      expect(spiedSentrySetTag).toHaveBeenCalledWith('logLevel', 'info');
+      sentryLogger.warn('test');
+      expect(spiedSentrySetTag).toHaveBeenCalledWith('logLevel', 'warn');
     });
 
     it('should set the prefix as a tag', () => {
-      sentryLogger.info('test');
+      sentryLogger.warn('test');
       expect(spiedSentrySetTag).toHaveBeenCalledWith('prefix', 'SentryLogger');
     });
 
     it('should call captureMessage when logging plaintext', () => {
-      sentryLogger.info('te', 'st');
+      sentryLogger.warn('te', 'st');
       expect(spiedSentryCaptureMessage).toHaveBeenCalled();
     });
 
     it('should contain the provided plaintext message', () => {
-      sentryLogger.info('te', 'st');
+      sentryLogger.warn('te', 'st');
 
       const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
       expect(lastCallArgs).toContain('te');
@@ -331,21 +328,9 @@ describe('LoggerFactory', () => {
     it('should use all configured adapters', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          {
-            name: Adapters.Console,
-            config: {
-              logLevel: LogLevels.Info,
-            },
-          },
-          {
-            name: Adapters.Sentry,
-            config: {
-              dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-              tracesSampleRate: 1.0,
-              environment: 'production',
-              logLevel: LogLevels.Warn,
-            },
-          }],
+          consoleAdapterSettings,
+          sentryAdapterSettings,
+        ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
       multiAdapterLogger.warn('test');
@@ -357,21 +342,9 @@ describe('LoggerFactory', () => {
     it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          {
-            name: Adapters.Console,
-            config: {
-              logLevel: LogLevels.Info,
-            },
-          },
-          {
-            name: Adapters.Sentry,
-            config: {
-              dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-              tracesSampleRate: 1.0,
-              environment: 'production',
-              logLevel: LogLevels.Warn,
-            },
-          }],
+          consoleAdapterSettings,
+          sentryAdapterSettings,
+        ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
       multiAdapterLogger.info('test');

@@ -33,14 +33,13 @@ class LoggerFactory {
         supportedAdapterValues.includes(adapter.name),
         `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
       );
+      assert(adapter.config);
+
       switch (adapter.name) {
         case SupportedAdapters.Console:
           this.adapters.push(new ConsoleLoggerAdapter(adapter.config as LoggerAdapterConfig));
           break;
         case SupportedAdapters.Sentry:
-          if (!adapter.config) {
-            throw new Error('Adapter config required!');
-          }
           this.adapters.push(new SentryLoggerAdapter(adapter.config as SentryConfig));
           break;
       }
