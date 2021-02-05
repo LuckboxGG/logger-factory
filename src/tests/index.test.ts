@@ -201,10 +201,12 @@ describe('LoggerFactory', () => {
 
   describe('Logging [sentry]*', () => {
     const spiedSentryCaptureMessage = jest.spyOn(Sentry, 'captureMessage');
+    const spiedSentryCaptureException = jest.spyOn(Sentry, 'captureException');
     const spiedSentrySetTag = jest.spyOn(Sentry, 'setTag');
 
     afterEach(() => {
       spiedSentryCaptureMessage.mockClear();
+      spiedSentryCaptureException.mockClear();
       spiedSentrySetTag.mockClear();
     });
 
@@ -292,12 +294,28 @@ describe('LoggerFactory', () => {
       expect(spiedSentrySetTag).toHaveBeenCalledWith('prefix', 'SentryLogger');
     });
 
-    it('should contain the data', () => {
+    it('should call captureMessage when logging plaintext', () => {
+      sentryLogger.info('te', 'st');
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+    });
+
+    it('should contain the provided plaintext message', () => {
       sentryLogger.info('te', 'st');
 
       const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
       expect(lastCallArgs).toContain('te');
       expect(lastCallArgs).toContain('st');
+    });
+
+    it('should call captureException when logging exceptions', () => {
+      sentryLogger.error(new Error('Test!'));
+      expect(spiedSentryCaptureException).toHaveBeenCalled();
+    });
+
+    it('should call both captureMessage and captureException if logging both text and exception', () => {
+      sentryLogger.error('test', new Error('Test!'));
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+      expect(spiedSentryCaptureException).toHaveBeenCalled();
     });
   });
 

@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { isPlainObject } from 'lodash';
+import { isPlainObject, partition } from 'lodash';
 import { LogLevelPriorities, LoggerAdapter, LogMessage } from './LoggerAdapter';
 import { LogLevels } from '../LoggerFactory';
 
@@ -26,14 +26,24 @@ class SentryLoggerAdapter implements LoggerAdapter {
   public log(message: LogMessage) {
     let formattedArgs = [];
     formattedArgs.push(this.formatDate(message.date));
-    formattedArgs = [
-      ...formattedArgs,
-      ...message.args.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
-    ];
+    const [ exceptions, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
 
     Sentry.setTag('prefix', message.prefix);
     Sentry.setTag('logLevel', message.level);
-    Sentry.captureMessage(formattedArgs.join(' '));
+
+    if (messagesAndObjects.length > 0) {
+      formattedArgs = [
+        ...formattedArgs,
+        ...messagesAndObjects.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
+      ];
+      Sentry.captureMessage(formattedArgs.join(' '));
+    }
+
+    if (exceptions.length > 0) {
+      for (const anException of exceptions) {
+        Sentry.captureException(anException);
+      }
+    }
   }
 
   private formatDate(date: Date): string {
