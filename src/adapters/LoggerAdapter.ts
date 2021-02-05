@@ -3,6 +3,7 @@ import { LogLevels } from '../LoggerFactory';
 
 type Config = {
   logLevel: LogLevels;
+  skipTimestamps?: boolean;
 }
 
 const LogLevelPriorities = {

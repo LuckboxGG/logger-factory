@@ -9,25 +9,31 @@ type Config = {
   environment: string;
   logLevel: LogLevels;
   debug?: boolean;
+  skipTimestamps?: boolean;
 }
 
 class SentryLoggerAdapter implements LoggerAdapter {
   public readonly logLevel: number;
 
+  public readonly skipTimestamps: boolean;
+
   constructor(props: Config) {
     this.logLevel = LogLevelPriorities[props.logLevel];
+    this.skipTimestamps = props.skipTimestamps;
 
     Sentry.init({
       dsn: props.dsn,
       tracesSampleRate: props.tracesSampleRate,
       environment: props.environment,
-      debug: Boolean(props.debug),
+      debug: props.debug,
     });
   }
 
   public log(message: LogMessage) {
     let formattedArgs = [];
-    formattedArgs.push(this.formatDate(message.date));
+    if (!this.skipTimestamps) {
+      formattedArgs.push(this.formatDate(message.date));
+    }
     const [ exceptions, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
 
     Sentry.setTag('prefix', message.prefix);

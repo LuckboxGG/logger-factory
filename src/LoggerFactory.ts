@@ -9,13 +9,13 @@ enum SupportedAdapters {
   Sentry = 'sentry',
 }
 
-type AdapterSomethingBetterNamed = {
+type Adapter = {
   name: SupportedAdapters;
   config?: SentryConfig | LoggerAdapterConfig;
 }
 
 interface ConstructorParams {
-  adapters: Array<AdapterSomethingBetterNamed>,
+  adapters: Array<Adapter>,
 }
 
 class LoggerFactory {

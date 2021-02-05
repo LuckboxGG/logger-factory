@@ -5,8 +5,11 @@ import { LogLevelPriorities, LoggerAdapter, LoggerAdapterConfig, LogMessage } fr
 class ConsoleLoggerAdapter implements LoggerAdapter {
   public readonly logLevel: number;
 
+  public readonly skipTimestamps: boolean;
+
   constructor(props: LoggerAdapterConfig) {
     this.logLevel = LogLevelPriorities[props.logLevel];
+    this.skipTimestamps = props.skipTimestamps;
   }
 
   public log(message: LogMessage) {
@@ -15,7 +18,9 @@ class ConsoleLoggerAdapter implements LoggerAdapter {
 
   private formatMessage(message: LogMessage) {
     let formattedArgs = [];
-    formattedArgs.push(this.formatDate(message.date));
+    if (!this.skipTimestamps) {
+      formattedArgs.push(this.formatDate(message.date));
+    }
     if (message.prefix !== undefined) {
       formattedArgs.push(`[${message.prefix}]`);
     }

@@ -11,6 +11,7 @@ describe('LoggerFactory', () => {
       environment: 'production',
       logLevel: LogLevels.Warn,
       debug: false,
+      skipTimestamps: false,
     },
   };
 
@@ -75,7 +76,7 @@ describe('LoggerFactory', () => {
       }));
     });
 
-    it.skip('should allow to init sentry in debug mode', () => {
+    it('should allow to init sentry in debug mode', () => {
       const spiedSentryInit = jest.spyOn(Sentry, 'init');
 
       expect(() => new LoggerFactory({
@@ -180,6 +181,26 @@ describe('LoggerFactory', () => {
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[0]).toEqual('(2020/06/23 14:34:56.000)');
+    });
+
+    it('should not display date when constructed with skipTimestamps = true', () => {
+      const noTimestampsLoggerFactory = new LoggerFactory({
+        adapters: [{
+          name: Adapters.Console,
+          config: {
+            logLevel: consoleAdapterSettings.config.logLevel,
+            skipTimestamps: true,
+          },
+        }],
+      });
+      const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
+
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      noTimestampsLogger.info('test');
+      restoreDate();
+
+      const lastCallArgs = spiedConsoleLog.mock.calls.pop();
+      expect(lastCallArgs[0]).not.toEqual('(2020/06/23 14:34:56.000)');
     });
 
     it('should provide the prefix as second param', () => {
@@ -299,6 +320,26 @@ describe('LoggerFactory', () => {
 
       const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
       expect(lastCallArgs).toContain('(2020/06/23 14:34:56.000)');
+    });
+
+    it('should not display date when constructed with skipTimestamps = true', () => {
+      const noTimestampsLoggerFactory = new LoggerFactory({
+        adapters: [{
+          ...sentryAdapterSettings,
+          config: {
+            ...sentryAdapterSettings.config,
+            skipTimestamps: true,
+          },
+        }],
+      });
+      const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
+
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      noTimestampsLogger.warn('test');
+      restoreDate();
+
+      const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
+      expect(lastCallArgs).not.toContain('(2020/06/23 14:34:56.000)');
     });
 
     it('should set the logLevel as a tag', () => {
