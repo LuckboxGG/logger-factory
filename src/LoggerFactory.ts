@@ -2,7 +2,7 @@ import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
 import SentryLoggerAdapter, { SentryConfig, SentrySettings } from './adapters/SentryLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
-import { CommonAdapterSettings, LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
+import { CommonAdapterSettings, LoggerAdapter } from './adapters/LoggerAdapter';
 
 enum SupportedAdapters {
   Console = 'console',
@@ -33,7 +33,7 @@ class LoggerFactory {
 
       switch (adapter.name) {
         case SupportedAdapters.Console:
-          this.adapters.push(new ConsoleLoggerAdapter(adapter.config as LoggerAdapterConfig));
+          this.adapters.push(new ConsoleLoggerAdapter(adapter.config));
           break;
         case SupportedAdapters.Sentry:
           this.adapters.push(new SentryLoggerAdapter(adapter.config as SentryConfig));
