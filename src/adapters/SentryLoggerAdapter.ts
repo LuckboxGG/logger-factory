@@ -27,15 +27,16 @@ class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterfac
 
   public log(message: LogMessage): void {
     let formattedArgs = [];
-    if (!this.skipTimestamps) {
-      formattedArgs.push(this.formatDate(message.date));
-    }
-    const [ exceptions, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
+    const [ errors, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
 
     Sentry.setTag('prefix', message.prefix);
     Sentry.setTag('logLevel', message.level);
 
     if (messagesAndObjects.length > 0) {
+      if (!this.skipTimestamps) {
+        formattedArgs.push(this.formatDate(message.date));
+      }
+
       formattedArgs = [
         ...formattedArgs,
         ...messagesAndObjects.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
@@ -43,9 +44,9 @@ class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterfac
       Sentry.captureMessage(formattedArgs.join(' '));
     }
 
-    if (exceptions.length > 0) {
-      for (const anException of exceptions) {
-        Sentry.captureException(anException);
+    if (errors.length > 0) {
+      for (const anError of errors) {
+        Sentry.captureException(anError);
       }
     }
   }
