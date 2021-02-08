@@ -23,12 +23,7 @@ interface LogMessage {
   date: Date,
 }
 
-interface LoggerAdapterInterface {
-  logLevel: number;
-  log(message: LogMessage): void,
-}
-
-abstract class LoggerAdapter implements LoggerAdapterInterface {
+abstract class LoggerAdapter {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 

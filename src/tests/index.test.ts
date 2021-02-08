@@ -1,6 +1,7 @@
 import { LoggerFactory, Adapters, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
+import { CommonAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
 
 describe('LoggerFactory', () => {
   const sentryAdapterSettings =  {
@@ -41,7 +42,7 @@ describe('LoggerFactory', () => {
     it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
       expect(() => new LoggerFactory({
         ...constructorParams,
-        adapters: [sentryAdapterSettings],
+        adapters: [sentryAdapterSettings as SentryAdapterSettings],
       })).not.toThrow();
     });
 
@@ -50,7 +51,7 @@ describe('LoggerFactory', () => {
 
       expect(() => new LoggerFactory({
         ...constructorParams,
-        adapters: [sentryAdapterSettings],
+        adapters: [sentryAdapterSettings as CommonAdapterSettings],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
@@ -70,7 +71,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             debug: true,
           },
-        } as SentrySettings],
+        } as SentryAdapterSettings],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({

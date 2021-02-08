@@ -69,4 +69,6 @@ export {
   LoggerFactory,
   SupportedAdapters as Adapters,
   SupportedLogLevels as LogLevels,
+  SentryAdapterSettings,
+  CommonAdapterSettings,
 };
