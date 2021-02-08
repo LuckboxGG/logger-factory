@@ -24,7 +24,7 @@ class LoggerFactory {
 
   constructor({
     adapters = [],
-  } = {} as ConstructorParams) {
+  }: ConstructorParams) {
     this.adapters = [];
     for (const adapter of adapters) {
       const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;

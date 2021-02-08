@@ -27,10 +27,6 @@ describe('LoggerFactory', () => {
   };
 
   describe('Factory construction', () => {
-    it('should not throw when calling without params', () => {
-      expect(() => new LoggerFactory()).not.toThrow();
-    });
-
     it.each([
       null, 'unknown',
     ])('should throw AssertionError when passing adapter - %s', (adapter) => {
