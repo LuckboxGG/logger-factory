@@ -9,6 +9,11 @@ type Config = LoggerAdapterConfig & {
   debug?: boolean;
 }
 
+type Settings = {
+  name: 'sentry',
+  config: Config,
+}
+
 class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterface {
   constructor(props: Config) {
     super(props);
@@ -49,4 +54,5 @@ class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterfac
 export default SentryLoggerAdapter;
 export {
   Config as SentryConfig,
+  Settings as SentrySettings,
 };

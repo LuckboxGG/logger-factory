@@ -1,9 +1,14 @@
 import { SupportedLogLevels } from '../Logger';
-import { LogLevels } from '../LoggerFactory';
+import { LogLevels, Adapters } from '../LoggerFactory';
 
 type Config = {
   logLevel: LogLevels;
   skipTimestamps?: boolean;
+}
+
+type Settings = {
+  name: Adapters,
+  config: Config,
 }
 
 const LogLevelPriorities = {
@@ -31,9 +36,9 @@ class LoggerAdapter implements Interface {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 
-  constructor(props: Config) {
-    this.logLevel = LogLevelPriorities[props.logLevel];
-    this.skipTimestamps = props.skipTimestamps;
+  constructor(params: Config) {
+    this.logLevel = LogLevelPriorities[params.logLevel];
+    this.skipTimestamps = params.skipTimestamps;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -60,5 +65,6 @@ export {
   Interface as LoggerAdapterInterface,
   LogMessage,
   Config as LoggerAdapterConfig,
+  Settings as CommonAdapterSettings,
   LogLevelPriorities,
 };

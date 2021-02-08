@@ -1,21 +1,18 @@
 import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
-import SentryLoggerAdapter, { SentryConfig } from './adapters/SentryLoggerAdapter';
+import SentryLoggerAdapter, { SentryConfig, SentrySettings } from './adapters/SentryLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
-import { LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
+import { CommonAdapterSettings, LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
 
 enum SupportedAdapters {
   Console = 'console',
   Sentry = 'sentry',
 }
 
-type Adapter = {
-  name: SupportedAdapters;
-  config?: SentryConfig | LoggerAdapterConfig;
-}
+type AdapterSettings = CommonAdapterSettings | SentrySettings
 
 interface ConstructorParams {
-  adapters: Array<Adapter>,
+  adapters: Array<AdapterSettings>,
 }
 
 class LoggerFactory {
@@ -26,8 +23,8 @@ class LoggerFactory {
     adapters = [],
   }: ConstructorParams) {
     this.adapters = [];
+    const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
     for (const adapter of adapters) {
-      const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;
       assert(
         supportedAdapterValues.includes(adapter.name),
         `Invalid adapter - ${adapter}. Supported: ${supportedAdapterValues}`,
