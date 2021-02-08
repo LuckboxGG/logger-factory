@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { isPlainObject, partition } from 'lodash';
+import { partition } from 'lodash';
 import { LoggerAdapter, LogMessage, LoggerAdapterConfig } from './LoggerAdapter';
 
 type Config = LoggerAdapterConfig & {
@@ -14,13 +14,13 @@ type Settings = {
 }
 
 class SentryLoggerAdapter extends LoggerAdapter {
-  constructor(props: Config) {
-    super(props);
+  constructor(params: Config) {
+    super(params);
     Sentry.init({
-      dsn: props.dsn,
+      dsn: params.dsn,
       tracesSampleRate: 1,
-      environment: props.environment,
-      debug: props.debug,
+      environment: params.environment,
+      debug: params.debug,
     });
   }
 
@@ -38,7 +38,7 @@ class SentryLoggerAdapter extends LoggerAdapter {
 
       formattedArgs = [
         ...formattedArgs,
-        ...messagesAndObjects.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
+        ...messagesAndObjects.map((anArg) => this.serializeDataIfNecessary(anArg)),
       ];
       Sentry.captureMessage(formattedArgs.join(' '));
     }

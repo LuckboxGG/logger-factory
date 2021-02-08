@@ -1,3 +1,4 @@
+import { isPlainObject } from 'lodash';
 import { SupportedLogLevels } from '../Logger';
 import { LogLevels, Adapters } from '../LoggerFactory';
 
@@ -27,12 +28,12 @@ interface LogMessage {
   date: Date,
 }
 
-interface Interface {
+interface LoggerAdapterInterface {
   logLevel: number;
   log(message: LogMessage): void,
 }
 
-abstract class LoggerAdapter {
+abstract class LoggerAdapter implements LoggerAdapterInterface {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 
@@ -54,13 +55,22 @@ abstract class LoggerAdapter {
     return str;
   }
 
+  protected serializeDataIfNecessary(anArg: unknown): unknown {
+    if (isPlainObject(anArg) || Array.isArray(anArg)) {
+      // https://github.com/GoogleChromeLabs/jsbi/issues/30#issuecomment-521460510
+      return JSON.stringify(anArg, (key, value) => (typeof value === 'bigint'
+        ? value.toString()
+        : value));
+    }
+    return anArg;
+  }
+
   abstract log(message: LogMessage): void;
 }
 
 
 export {
   LoggerAdapter,
-  Interface as LoggerAdapterInterface,
   LogMessage,
   Config as LoggerAdapterConfig,
   Settings as CommonAdapterSettings,

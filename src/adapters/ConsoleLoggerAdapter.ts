@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { isPlainObject } from 'lodash';
 import { LoggerAdapter, LogMessage } from './LoggerAdapter';
 
 class ConsoleLoggerAdapter extends LoggerAdapter {
@@ -19,7 +18,7 @@ class ConsoleLoggerAdapter extends LoggerAdapter {
 
     formattedArgs = [
       ...formattedArgs,
-      ...message.args.map((anArg) => (isPlainObject(anArg) || Array.isArray(anArg) ? JSON.stringify(anArg) : anArg)),
+      ...message.args.map((anArg) => this.serializeDataIfNecessary(anArg)),
     ];
 
     return formattedArgs;
