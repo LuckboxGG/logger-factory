@@ -74,8 +74,6 @@ Default configuration (works for all adapters):
 
 - `skipTimestamps` Whether to include the timestamps in the logged message. Can be turned off if using kubernetes, 
   since it has integrated functionality to timestamp all messages. Defaults to false.
-- `debug` - Whether to enable Sentry adapter in debug mode (NOTE: even in debug mode, not working Sentry server
-  will not crash the code).  Defaults to false.
 - `logLevel` - The minimum logging level that will be logged with that adapter.
 
 #### Console adapter
@@ -99,11 +97,13 @@ const anotherInfoLogger = infoLoggerFactory.create('Classname2');
 
 #### Sentry adapter
 
-Sentry has three additional configuration settings
+Sentry has the following additional configuration settings:
 
 - `dsn` - Client key, used by Sentry to determine where to send the event to
 - `tracesSampleRate` - Determine what % of errors to track (0-1)
 - `environment` - Used to separate errors from different environments
+- `debug` - Whether to enable Sentry adapter in debug mode (NOTE: even in debug mode, not working Sentry server
+  will not crash the code).  Defaults to false.
 
 ```
 const LoggerFactory = require('./LoggerFactory');
