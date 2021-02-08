@@ -30,7 +30,7 @@ class LoggerFactory {
   private readonly adapters: Array<LoggerAdapter>;
 
   constructor({
-    adapters = [],
+    adapters,
   }: ConstructorParams) {
     this.adapters = [];
     const supportedAdapterValues = Object.values(SupportedAdapters) as Array<string>;

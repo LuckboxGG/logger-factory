@@ -23,17 +23,6 @@ describe('LoggerFactory', () => {
   };
 
   describe('Factory construction', () => {
-    // it.each([
-    //   null, 'unknown',
-    // ])('should throw AssertionError when passing adapter - %s', (adapter) => {
-    //   expect(() => new LoggerFactory({
-    //     adapters: [{
-    //       name: adapter as Adapters,
-    //       config: consoleAdapterSettings.config,
-    //     }],
-    //   })).toThrow(AssertionError);
-    // });
-
     it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
       expect(() => new LoggerFactory({
         adapters: [sentryAdapterSettings],
@@ -224,6 +213,12 @@ describe('LoggerFactory', () => {
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[3]).toEqual(JSON.stringify(input));
+    });
+
+    it('should not throw when stringifying big int', () => {
+      expect(() => {
+        consoleLogger.info({ id: BigInt(Number.MAX_SAFE_INTEGER + 1) })
+      }).not.toThrow();
     });
   });
 
