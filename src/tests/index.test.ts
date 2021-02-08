@@ -22,16 +22,11 @@ describe('LoggerFactory', () => {
     },
   };
 
-  const constructorParams = {
-    adapters: [consoleAdapterSettings],
-  };
-
   describe('Factory construction', () => {
     it.each([
       null, 'unknown',
     ])('should throw AssertionError when passing adapter - %s', (adapter) => {
       expect(() => new LoggerFactory({
-        ...constructorParams,
         adapters: [{
           name: adapter as Adapters,
           config: consoleAdapterSettings.config,
@@ -41,7 +36,6 @@ describe('LoggerFactory', () => {
 
     it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
       expect(() => new LoggerFactory({
-        ...constructorParams,
         adapters: [sentryAdapterSettings as SentryAdapterSettings],
       })).not.toThrow();
     });
@@ -50,7 +44,6 @@ describe('LoggerFactory', () => {
       const spiedSentryInit = jest.spyOn(Sentry, 'init');
 
       expect(() => new LoggerFactory({
-        ...constructorParams,
         adapters: [sentryAdapterSettings as CommonAdapterSettings],
       })).not.toThrow();
 
@@ -64,7 +57,6 @@ describe('LoggerFactory', () => {
       const spiedSentryInit = jest.spyOn(Sentry, 'init');
 
       expect(() => new LoggerFactory({
-        ...constructorParams,
         adapters: [{
           ...sentryAdapterSettings,
           config: {
@@ -80,6 +72,9 @@ describe('LoggerFactory', () => {
     });
   });
 
+  const constructorParams = {
+    adapters: [consoleAdapterSettings],
+  };
   const consoleLoggerFactory = new LoggerFactory(constructorParams);
   const consoleLogger = consoleLoggerFactory.create('MyClass');
 
@@ -256,7 +251,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             logLevel: level,
           },
-        }],
+        } as SentryAdapterSettings],
       });
       const customLogger = customLevelLoggerFactory.create('MyClass');
 
@@ -282,7 +277,7 @@ describe('LoggerFactory', () => {
           ...sentryAdapterSettings.config,
           logLevel: LogLevels.Silent,
         },
-      }],
+      } as SentryAdapterSettings],
     });
     const pointlessLogger = pointlessLoggerFactory.create('MyClass');
 
@@ -293,7 +288,7 @@ describe('LoggerFactory', () => {
     });
 
     const sentryLoggerFactory = new LoggerFactory({
-      adapters: [sentryAdapterSettings],
+      adapters: [sentryAdapterSettings as SentryAdapterSettings],
     });
     const sentryLogger = sentryLoggerFactory.create('SentryLogger');
 
@@ -314,7 +309,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             skipTimestamps: true,
           },
-        }],
+        } as SentryAdapterSettings],
       });
       const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
 
@@ -373,8 +368,8 @@ describe('LoggerFactory', () => {
     it('should use all configured adapters', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings,
-          sentryAdapterSettings,
+          consoleAdapterSettings as CommonAdapterSettings,
+          sentryAdapterSettings as SentryAdapterSettings,
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
@@ -387,8 +382,8 @@ describe('LoggerFactory', () => {
     it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings,
-          sentryAdapterSettings,
+          consoleAdapterSettings as CommonAdapterSettings,
+          sentryAdapterSettings as SentryAdapterSettings,
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
