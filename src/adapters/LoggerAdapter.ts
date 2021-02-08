@@ -29,7 +29,7 @@ abstract class LoggerAdapter {
 
   public constructor(params: Config) {
     this.logLevel = LogLevelPriorities[params.logLevel];
-    this.skipTimestamps = params.skipTimestamps;
+    this.skipTimestamps = Boolean(params.skipTimestamps);
   }
 
   protected formatDate(date: Date): string {

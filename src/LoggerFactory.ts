@@ -9,17 +9,17 @@ enum SupportedAdapters {
   Sentry = 'sentry',
 }
 
-type CommonAdapterSettings = {
-  name: SupportedAdapters,
+type ConsoleAdapterSettings = {
+  name: SupportedAdapters.Console,
   config: LoggerAdapterConfig,
 }
 
 type SentryAdapterSettings = {
-  name: 'sentry',
+  name: SupportedAdapters.Sentry,
   config: SentryAdapterConfig,
 }
 
-type AdapterSettings = CommonAdapterSettings | SentryAdapterSettings
+type AdapterSettings = ConsoleAdapterSettings | SentryAdapterSettings
 
 interface ConstructorParams {
   adapters: Array<AdapterSettings>,
@@ -70,5 +70,5 @@ export {
   SupportedAdapters as Adapters,
   SupportedLogLevels as LogLevels,
   SentryAdapterSettings,
-  CommonAdapterSettings,
+  ConsoleAdapterSettings,
 };

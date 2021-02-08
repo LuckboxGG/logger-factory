@@ -15,7 +15,7 @@ class SentryLoggerAdapter extends LoggerAdapter {
       dsn: params.dsn,
       tracesSampleRate: 1,
       environment: params.environment,
-      debug: params.debug,
+      debug: Boolean(params.debug),
     });
   }
 
