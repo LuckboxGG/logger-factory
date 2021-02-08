@@ -20,7 +20,7 @@ class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterfac
     });
   }
 
-  public log(message: LogMessage) {
+  public log(message: LogMessage): void {
     let formattedArgs = [];
     if (!this.skipTimestamps) {
       formattedArgs.push(this.formatDate(message.date));

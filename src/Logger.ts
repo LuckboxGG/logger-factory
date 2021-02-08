@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LoggerAdapter, LogLevelPriorities } from './adapters/LoggerAdapter';
 
 enum SupportedLogLevels {
@@ -25,7 +26,7 @@ class Logger {
     this.prefix = prefix;
   }
 
-  error(...args: Array<any>) {
+  error(...args: Array<any>): void {
     for (const adapter of this.adapters) {
       if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Error]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Error));
@@ -33,7 +34,7 @@ class Logger {
     }
   }
 
-  warn(...args: Array<any>) {
+  warn(...args: Array<any>): void {
     for (const adapter of this.adapters) {
       if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Warn]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Warn));
@@ -41,7 +42,7 @@ class Logger {
     }
   }
 
-  info(...args: Array<any>) {
+  info(...args: Array<any>): void {
     for (const adapter of this.adapters) {
       if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Info]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Info));
@@ -49,7 +50,7 @@ class Logger {
     }
   }
 
-  debug(...args: Array<any>) {
+  debug(...args: Array<any>): void {
     for (const adapter of this.adapters) {
       if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.Debug]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.Debug));
@@ -57,7 +58,7 @@ class Logger {
     }
   }
 
-  system(...args: Array<any>) {
+  system(...args: Array<any>): void {
     for (const adapter of this.adapters) {
       if (adapter.logLevel >= LogLevelPriorities[SupportedLogLevels.System]) {
         adapter.log(this.constructLogMessage(args, SupportedLogLevels.System));

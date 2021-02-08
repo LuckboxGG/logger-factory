@@ -2,7 +2,7 @@ import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
 import SentryLoggerAdapter, { SentryConfig } from './adapters/SentryLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
-import { LoggerAdapterConfig } from './adapters/LoggerAdapter';
+import { LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
 
 enum SupportedAdapters {
   Console = 'console',
@@ -20,8 +20,7 @@ interface ConstructorParams {
 
 class LoggerFactory {
   private readonly logLevel: SupportedLogLevels;
-
-  private adapters: Array<any>;
+  private readonly adapters: Array<LoggerAdapter>;
 
   constructor({
     adapters = [],
@@ -46,7 +45,7 @@ class LoggerFactory {
     }
   }
 
-  create(prefix?: string) {
+  create(prefix?: string): Logger {
     if (prefix !== undefined) {
       assert(typeof prefix === 'string' && prefix.length > 0, `Invalid prefix provided - ${prefix}. It must be non-empty string or undefined`);
     }

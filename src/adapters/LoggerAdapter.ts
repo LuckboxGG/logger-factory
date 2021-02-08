@@ -16,7 +16,7 @@ const LogLevelPriorities = {
 };
 
 interface LogMessage {
-  args: Array<any>,
+  args: Array<>,
   level: SupportedLogLevels,
   prefix?: string,
   date: Date,
@@ -29,7 +29,6 @@ interface Interface {
 
 class LoggerAdapter implements Interface {
   public readonly logLevel: number;
-
   public readonly skipTimestamps: boolean;
 
   constructor(props: Config) {
@@ -38,7 +37,7 @@ class LoggerAdapter implements Interface {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  log(message: LogMessage) {
+  log(message: LogMessage): void {
     throw new Error('Abstract!');
   }
 }
