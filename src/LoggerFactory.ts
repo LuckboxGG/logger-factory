@@ -46,7 +46,7 @@ class LoggerFactory {
           this.adapters.push(new ConsoleLoggerAdapter(adapter.config));
           break;
         case SupportedAdapters.Sentry:
-          this.adapters.push(new SentryLoggerAdapter(adapter.config as SentryAdapterConfig));
+          this.adapters.push(new SentryLoggerAdapter(adapter.config));
           break;
       }
     }
