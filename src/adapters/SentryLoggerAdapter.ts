@@ -1,26 +1,17 @@
 import * as Sentry from '@sentry/node';
 import { isPlainObject, partition } from 'lodash';
-import { LogLevelPriorities, LoggerAdapter, LogMessage } from './LoggerAdapter';
-import { LogLevels } from '../LoggerFactory';
+import { LoggerAdapter, LoggerAdapterInterface, LogMessage, LoggerAdapterConfig } from './LoggerAdapter';
 
-type Config = {
+type Config = LoggerAdapterConfig & {
   dsn: string;
   tracesSampleRate: number;
   environment: string;
-  logLevel: LogLevels;
   debug?: boolean;
-  skipTimestamps?: boolean;
 }
 
-class SentryLoggerAdapter implements LoggerAdapter {
-  public readonly logLevel: number;
-
-  public readonly skipTimestamps: boolean;
-
+class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterface {
   constructor(props: Config) {
-    this.logLevel = LogLevelPriorities[props.logLevel];
-    this.skipTimestamps = props.skipTimestamps;
-
+    super(props);
     Sentry.init({
       dsn: props.dsn,
       tracesSampleRate: props.tracesSampleRate,

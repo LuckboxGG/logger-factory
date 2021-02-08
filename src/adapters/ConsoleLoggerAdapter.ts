@@ -1,17 +1,8 @@
 /* eslint-disable no-console */
 import { isPlainObject } from 'lodash';
-import { LogLevelPriorities, LoggerAdapter, LoggerAdapterConfig, LogMessage } from './LoggerAdapter';
+import { LoggerAdapter, LoggerAdapterInterface, LogMessage } from './LoggerAdapter';
 
-class ConsoleLoggerAdapter implements LoggerAdapter {
-  public readonly logLevel: number;
-
-  public readonly skipTimestamps: boolean;
-
-  constructor(props: LoggerAdapterConfig) {
-    this.logLevel = LogLevelPriorities[props.logLevel];
-    this.skipTimestamps = props.skipTimestamps;
-  }
-
+class ConsoleLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterface {
   public log(message: LogMessage) {
     console.log(...this.formatMessage(message));
   }
