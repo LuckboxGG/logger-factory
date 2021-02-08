@@ -100,7 +100,6 @@ const anotherInfoLogger = infoLoggerFactory.create('Classname2');
 Sentry has the following additional configuration settings:
 
 - `dsn` - Client key, used by Sentry to determine where to send the event to
-- `tracesSampleRate` - Determine what % of errors to track (0-1)
 - `environment` - Used to separate errors from different environments
 - `debug` - Whether to enable Sentry adapter in debug mode (NOTE: even in debug mode, not working Sentry server
   will not crash the code).  Defaults to false.
@@ -114,7 +113,6 @@ const infoLoggerFactory = new LoggerFactory({
         config: {
           logLevel: 'warn',
           dsn: 'https://5637ee1e65504e02b1ba62255ac1f23a@yoursentryserver.com/6',
-          tracesSampleRate: 1.0,
           environment: 'testing',
           debug: false,
         }

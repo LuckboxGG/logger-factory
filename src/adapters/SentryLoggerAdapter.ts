@@ -4,7 +4,6 @@ import { LoggerAdapter, LogMessage, LoggerAdapterConfig } from './LoggerAdapter'
 
 type Config = LoggerAdapterConfig & {
   dsn: string;
-  tracesSampleRate: number;
   environment: string;
   debug?: boolean;
 }
@@ -19,7 +18,7 @@ class SentryLoggerAdapter extends LoggerAdapter {
     super(props);
     Sentry.init({
       dsn: props.dsn,
-      tracesSampleRate: props.tracesSampleRate,
+      tracesSampleRate: 1,
       environment: props.environment,
       debug: props.debug,
     });

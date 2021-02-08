@@ -1,13 +1,13 @@
 import { LoggerFactory, Adapters, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
+import { SentrySettings } from '../adapters/SentryLoggerAdapter';
 
 describe('LoggerFactory', () => {
   const sentryAdapterSettings =  {
     name: Adapters.Sentry,
     config: {
       dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
-      tracesSampleRate: 1.0,
       environment: 'production',
       logLevel: LogLevels.Warn,
       debug: false,
@@ -34,18 +34,7 @@ describe('LoggerFactory', () => {
         ...constructorParams,
         adapters: [{
           name: adapter as Adapters,
-        }],
-      })).toThrow(AssertionError);
-    });
-
-    it.each([
-      Adapters.Console,
-      Adapters.Sentry,
-    ])('should throw when calling %s without adapterConfig', (adapter) => {
-      expect(() => new LoggerFactory({
-        ...constructorParams,
-        adapters: [{
-          name: adapter as Adapters,
+          config: consoleAdapterSettings.config,
         }],
       })).toThrow(AssertionError);
     });
@@ -67,7 +56,6 @@ describe('LoggerFactory', () => {
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
         dsn: sentryAdapterSettings.config.dsn,
-        tracesSampleRate: sentryAdapterSettings.config.tracesSampleRate,
         environment: sentryAdapterSettings.config.environment,
       }));
     });
@@ -83,7 +71,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             debug: true,
           },
-        }],
+        } as SentrySettings],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
