@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 import { isPlainObject, partition } from 'lodash';
-import { LoggerAdapter, LoggerAdapterInterface, LogMessage, LoggerAdapterConfig } from './LoggerAdapter';
+import { LoggerAdapter, LogMessage, LoggerAdapterConfig } from './LoggerAdapter';
 
 type Config = LoggerAdapterConfig & {
   dsn: string;
@@ -14,7 +14,7 @@ type Settings = {
   config: Config,
 }
 
-class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterface {
+class SentryLoggerAdapter extends LoggerAdapter {
   constructor(props: Config) {
     super(props);
     Sentry.init({
@@ -26,13 +26,13 @@ class SentryLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterfac
   }
 
   public log(message: LogMessage): void {
-    let formattedArgs = [];
     const [ errors, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
 
     Sentry.setTag('prefix', message.prefix);
     Sentry.setTag('logLevel', message.level);
 
     if (messagesAndObjects.length > 0) {
+      let formattedArgs = [];
       if (!this.skipTimestamps) {
         formattedArgs.push(this.formatDate(message.date));
       }

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { isPlainObject } from 'lodash';
-import { LoggerAdapter, LoggerAdapterInterface, LogMessage } from './LoggerAdapter';
+import { LoggerAdapter, LogMessage } from './LoggerAdapter';
 
-class ConsoleLoggerAdapter extends LoggerAdapter implements LoggerAdapterInterface {
+class ConsoleLoggerAdapter extends LoggerAdapter {
   public log(message: LogMessage): void {
     console.log(...this.formatMessage(message));
   }

@@ -32,11 +32,11 @@ interface Interface {
   log(message: LogMessage): void,
 }
 
-class LoggerAdapter {
+abstract class LoggerAdapter {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 
-  constructor(params: Config) {
+  protected constructor(params: Config) {
     this.logLevel = LogLevelPriorities[params.logLevel];
     this.skipTimestamps = params.skipTimestamps;
   }
@@ -53,7 +53,10 @@ class LoggerAdapter {
 
     return str;
   }
+
+  abstract log(message: LogMessage): void;
 }
+
 
 export {
   LoggerAdapter,
