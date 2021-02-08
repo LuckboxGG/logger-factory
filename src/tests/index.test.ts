@@ -1,7 +1,6 @@
 import { LoggerFactory, Adapters, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
-import { SentrySettings } from '../adapters/SentryLoggerAdapter';
 
 describe('LoggerFactory', () => {
   const sentryAdapterSettings =  {
