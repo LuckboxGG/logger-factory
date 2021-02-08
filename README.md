@@ -49,7 +49,6 @@ const infoLoggerFactory = new LoggerFactory({
             config: {
               logLevel: 'warn',
               dsn: 'https://5637ee1e65504e02b1ba62255ac1f23a@youserver.com/6',
-              tracesSampleRate: 1.0,
               environment: 'testing',
             }
         }
