@@ -32,18 +32,13 @@ interface Interface {
   log(message: LogMessage): void,
 }
 
-class LoggerAdapter implements Interface {
+class LoggerAdapter {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 
   constructor(params: Config) {
     this.logLevel = LogLevelPriorities[params.logLevel];
     this.skipTimestamps = params.skipTimestamps;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  log(message: LogMessage): void {
-    throw new Error('Abstract!');
   }
 
   protected formatDate(date: Date): string {
