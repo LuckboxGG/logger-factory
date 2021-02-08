@@ -1,7 +1,7 @@
 {
   "name": "@luckbox/logger-factory",
-  "version": "2.0.5",
-  "description": "Easy to use logger with several levels of logging.",
+  "version": "3.0.0",
+  "description": "Easy to use logger with several levels of logging as well as different adapters that can be used separately or in combinations",
   "author": "Luckbox",
   "license": "ISC",
   "main": "dist/index.js",
@@ -35,14 +35,15 @@
     }
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "@sentry/node": "^6.0.4",
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "@luckbox/eslint-rules": "^3.0.1",
+    "@luckbox/eslint-rules": "^4.0.4",
     "@types/jest": "^26.0.3",
     "@types/node": "^14.0.14",
-    "@typescript-eslint/eslint-plugin": "^3.3.0",
-    "@typescript-eslint/parser": "^3.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.2.0",
     "eslint-plugin-node": "^11.1.0",

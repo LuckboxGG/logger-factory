@@ -1,70 +1,92 @@
 import { LoggerFactory, Adapters, LogLevels } from '../index';
 import { AssertionError } from 'assert';
+import * as Sentry from '@sentry/node';
+import { ConsoleAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
 
 describe('LoggerFactory', () => {
-  const constructorParams = {
-    logLevel: LogLevels.Debug,
-    adapter: Adapters.Console,
+  const sentryAdapterSettings =  {
+    name: Adapters.Sentry,
+    config: {
+      dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
+      environment: 'production',
+      logLevel: LogLevels.Warn,
+      debug: false,
+      skipTimestamps: false,
+    },
+  };
+
+  const consoleAdapterSettings = {
+    name: Adapters.Console,
+    config: {
+      logLevel: LogLevels.Debug,
+    },
   };
 
   describe('Factory construction', () => {
-    it('should not throw when calling without params', () => {
-      expect(() => new LoggerFactory()).not.toThrow();
-    });
-
-    it.each([
-      null, 'unknown',
-    ])('should throw AssertionError when passing level - %s', (level) => {
+    it(`should not throw when calling ${Adapters.Sentry} with adapterConfig`, () => {
       expect(() => new LoggerFactory({
-        ...constructorParams,
-        logLevel: level as LogLevels,
-      })).toThrow(AssertionError);
-    });
-
-    it.each([
-      ...Object.values(LogLevels), undefined,
-    ])('should not throw when passing level - %s', (level) => {
-      expect(() => new LoggerFactory({
-        ...constructorParams,
-        logLevel: level,
+        adapters: [sentryAdapterSettings],
       })).not.toThrow();
     });
 
-    it.each([
-      null, 'unknown',
-    ])('should throw AssertionError when passing adapter - %s', (adapter) => {
+    it('should call Sentry.init with the provided adapterConfig', () => {
+      const spiedSentryInit = jest.spyOn(Sentry, 'init');
+
       expect(() => new LoggerFactory({
-        ...constructorParams,
-        adapter: adapter as Adapters,
-      })).toThrow(AssertionError);
+        adapters: [sentryAdapterSettings as ConsoleAdapterSettings],
+      })).not.toThrow();
+
+      expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
+        dsn: sentryAdapterSettings.config.dsn,
+        environment: sentryAdapterSettings.config.environment,
+      }));
     });
 
-    it.each([
-      ...Object.values(Adapters), undefined,
-    ])('should not throw AssertionError when passing adapter - %s', (adapter) => {
+    it('should allow to init sentry in debug mode', () => {
+      const spiedSentryInit = jest.spyOn(Sentry, 'init');
+
       expect(() => new LoggerFactory({
-        ...constructorParams,
-        adapter: adapter as Adapters,
+        adapters: [{
+          ...sentryAdapterSettings,
+          config: {
+            ...sentryAdapterSettings.config,
+            debug: true,
+          },
+        } as SentryAdapterSettings],
       })).not.toThrow();
+
+      expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
+        debug: true,
+      }));
     });
   });
 
-  const loggerFactory = new LoggerFactory(constructorParams);
-  const logger = loggerFactory.create('MyClass');
+  const consoleLoggerFactory = new LoggerFactory({
+    adapters: [consoleAdapterSettings as ConsoleAdapterSettings],
+  });
+  const consoleLogger = consoleLoggerFactory.create('MyClass');
 
   describe('Logger creation', () => {
     it.each([
       null, '', 1,
     ])('should throw AssertionError when passing prefix - %s', (prefix) => {
-      expect(() => loggerFactory.create(prefix as string)).toThrow(AssertionError);
+      expect(() => consoleLoggerFactory.create(prefix as string)).toThrow(AssertionError);
     });
 
     it.each([
       undefined, 'MyClass', 'MyOtherClass',
     ])('should not throw AssertionError when passing prefix - %s', (prefix) => {
-      expect(() => loggerFactory.create(prefix)).not.toThrow();
+      expect(() => consoleLoggerFactory.create(prefix)).not.toThrow();
     });
   });
+
+  const orderedLogLevels = [
+    LogLevels.System,
+    LogLevels.Error,
+    LogLevels.Warn,
+    LogLevels.Info,
+    LogLevels.Debug,
+  ];
 
   describe('Logging [console]*', () => {
     const spiedConsoleLog = jest.spyOn(console, 'log');
@@ -73,22 +95,18 @@ describe('LoggerFactory', () => {
       spiedConsoleLog.mockClear();
     });
 
-    const orderedLogLevels = [
-      LogLevels.System,
-      LogLevels.Error,
-      LogLevels.Warn,
-      LogLevels.Info,
-      LogLevels.Debug,
-    ];
-
     for (const level of orderedLogLevels) {
       const index = orderedLogLevels.indexOf(level);
       const overlappedMethods = orderedLogLevels.slice(0, index + 1);
       const nonOverlappedMethods = orderedLogLevels.slice(index + 1);
 
       const customLevelLoggerFactory = new LoggerFactory({
-        logLevel: level,
-        adapter: Adapters.Console,
+        adapters: [{
+          name: Adapters.Console,
+          config: {
+            logLevel: level,
+          },
+        }],
       });
       const customLogger = customLevelLoggerFactory.create('MyClass');
 
@@ -108,8 +126,12 @@ describe('LoggerFactory', () => {
     }
 
     const pointlessLoggerFactory = new LoggerFactory({
-      logLevel: LogLevels.Silent,
-      adapter: Adapters.Console,
+      adapters: [{
+        name: Adapters.Console,
+        config: {
+          logLevel: LogLevels.Silent,
+        },
+      }],
     });
     const pointlessLogger = pointlessLoggerFactory.create('MyClass');
 
@@ -121,15 +143,35 @@ describe('LoggerFactory', () => {
 
     it('should provide the formatted date as first param', () => {
       mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
-      logger.info('test');
+      consoleLogger.info('test');
       restoreDate();
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[0]).toEqual('(2020/06/23 14:34:56.000)');
     });
 
+    it('should not display date when constructed with skipTimestamps = true', () => {
+      const noTimestampsLoggerFactory = new LoggerFactory({
+        adapters: [{
+          name: Adapters.Console,
+          config: {
+            logLevel: consoleAdapterSettings.config.logLevel,
+            skipTimestamps: true,
+          },
+        }],
+      });
+      const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
+
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      noTimestampsLogger.info('test');
+      restoreDate();
+
+      const lastCallArgs = spiedConsoleLog.mock.calls.pop();
+      expect(lastCallArgs[0]).not.toEqual('(2020/06/23 14:34:56.000)');
+    });
+
     it('should provide the prefix as second param', () => {
-      logger.info('test');
+      consoleLogger.info('test');
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[1]).toEqual('[MyClass]');
@@ -137,7 +179,7 @@ describe('LoggerFactory', () => {
 
     it('should not provide prefix when it is omitted', () => {
       mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
-      const noPrefixLogger = loggerFactory.create();
+      const noPrefixLogger = consoleLoggerFactory.create();
       noPrefixLogger.info('test');
       restoreDate();
 
@@ -149,14 +191,14 @@ describe('LoggerFactory', () => {
     });
 
     it('should provide the upper-cased level as third param', () => {
-      logger.info('test');
+      consoleLogger.info('test');
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[2]).toEqual('[INFO]');
     });
 
     it('should provide the data as last params', () => {
-      logger.info('te', 'st');
+      consoleLogger.info('te', 'st');
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[3]).toEqual('te');
@@ -167,10 +209,182 @@ describe('LoggerFactory', () => {
       { bar: 'foo' },
       [1, 2, 3.14],
     ])('should stringify %p', (input) => {
-      logger.info(input);
+      consoleLogger.info(input);
 
       const lastCallArgs = spiedConsoleLog.mock.calls.pop();
       expect(lastCallArgs[3]).toEqual(JSON.stringify(input));
+    });
+
+    it('should not throw when stringifying big int', () => {
+      expect(() => {
+        consoleLogger.info({ id: BigInt(Number.MAX_SAFE_INTEGER + 1) })
+      }).not.toThrow();
+    });
+  });
+
+  describe('Logging [sentry]*', () => {
+    const spiedSentryCaptureMessage = jest.spyOn(Sentry, 'captureMessage');
+    const spiedSentryCaptureException = jest.spyOn(Sentry, 'captureException');
+    const spiedSentrySetTag = jest.spyOn(Sentry, 'setTag');
+
+    afterEach(() => {
+      spiedSentryCaptureMessage.mockClear();
+      spiedSentryCaptureException.mockClear();
+      spiedSentrySetTag.mockClear();
+    });
+
+    for (const level of orderedLogLevels) {
+      const index = orderedLogLevels.indexOf(level);
+      const overlappedMethods = orderedLogLevels.slice(0, index + 1);
+      const nonOverlappedMethods = orderedLogLevels.slice(index + 1);
+
+      const customLevelLoggerFactory = new LoggerFactory({
+        adapters: [{
+          ...sentryAdapterSettings,
+          config: {
+            ...sentryAdapterSettings.config,
+            logLevel: level,
+          },
+        } as SentryAdapterSettings],
+      });
+      const customLogger = customLevelLoggerFactory.create('MyClass');
+
+      if (overlappedMethods.length) {
+        it.each(overlappedMethods)(`should call the Sentry.captureMessage when calling logger.%s [${level}]`, (method) => {
+          customLogger[method]('test');
+          expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+        });
+      }
+
+      if (nonOverlappedMethods.length) {
+        it.each(nonOverlappedMethods)(`should not call the Sentry.captureMessage when calling logger.%s [${level}]`, (method) => {
+          customLogger[method]('test');
+          expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
+        });
+      }
+    }
+
+    const pointlessLoggerFactory = new LoggerFactory({
+      adapters: [{
+        ...sentryAdapterSettings,
+        config: {
+          ...sentryAdapterSettings.config,
+          logLevel: LogLevels.Silent,
+        },
+      } as SentryAdapterSettings],
+    });
+    const pointlessLogger = pointlessLoggerFactory.create('MyClass');
+
+    it.each(orderedLogLevels)('should not call the console.log when calling logger.%s [off]', (method) => {
+      pointlessLogger[method]('test');
+
+      expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
+    });
+
+    const sentryLoggerFactory = new LoggerFactory({
+      adapters: [sentryAdapterSettings as SentryAdapterSettings],
+    });
+    const sentryLogger = sentryLoggerFactory.create('SentryLogger');
+
+    it('should contain the formatted date', () => {
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      sentryLogger.warn('test');
+      restoreDate();
+
+      const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
+      expect(lastCallArgs).toContain('(2020/06/23 14:34:56.000)');
+    });
+
+    it('should not display date when constructed with skipTimestamps = true', () => {
+      const noTimestampsLoggerFactory = new LoggerFactory({
+        adapters: [{
+          ...sentryAdapterSettings,
+          config: {
+            ...sentryAdapterSettings.config,
+            skipTimestamps: true,
+          },
+        } as SentryAdapterSettings],
+      });
+      const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
+
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      noTimestampsLogger.warn('test');
+      restoreDate();
+
+      const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
+      expect(lastCallArgs).not.toContain('(2020/06/23 14:34:56.000)');
+    });
+
+    it('should set the logLevel as a tag', () => {
+      sentryLogger.warn('test');
+      expect(spiedSentrySetTag).toHaveBeenCalledWith('logLevel', 'warn');
+    });
+
+    it('should set the prefix as a tag', () => {
+      sentryLogger.warn('test');
+      expect(spiedSentrySetTag).toHaveBeenCalledWith('prefix', 'SentryLogger');
+    });
+
+    it('should call captureMessage when logging plaintext', () => {
+      sentryLogger.warn('te', 'st');
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+    });
+
+    it('should contain the provided plaintext message', () => {
+      sentryLogger.warn('te', 'st');
+
+      const [lastCallArgs] = spiedSentryCaptureMessage.mock.calls.pop();
+      expect(lastCallArgs).toContain('te');
+      expect(lastCallArgs).toContain('st');
+    });
+
+    it('should call captureException when logging exceptions', () => {
+      sentryLogger.error(new Error('Test!'));
+      expect(spiedSentryCaptureException).toHaveBeenCalled();
+    });
+
+    it('should call both captureMessage and captureException if logging both text and exception', () => {
+      sentryLogger.error('test', new Error('Test!'));
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+      expect(spiedSentryCaptureException).toHaveBeenCalled();
+    });
+  });
+
+  describe('Multiple adapters', () => {
+    const spiedConsoleLog = jest.spyOn(console, 'log');
+    const spiedSentryCaptureMessage = jest.spyOn(Sentry, 'captureMessage');
+
+    afterEach(() => {
+      spiedSentryCaptureMessage.mockClear();
+      spiedConsoleLog.mockClear();
+    });
+
+    it('should use all configured adapters', () => {
+      const multiAdapterFactory = new LoggerFactory({
+        adapters: [
+          consoleAdapterSettings as ConsoleAdapterSettings,
+          sentryAdapterSettings as SentryAdapterSettings,
+        ],
+      });
+      const multiAdapterLogger = multiAdapterFactory.create('MyClass');
+      multiAdapterLogger.warn('test');
+
+      expect(spiedConsoleLog).toHaveBeenCalled();
+      expect(spiedSentryCaptureMessage).toHaveBeenCalled();
+    });
+
+    it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
+      const multiAdapterFactory = new LoggerFactory({
+        adapters: [
+          consoleAdapterSettings as ConsoleAdapterSettings,
+          sentryAdapterSettings as SentryAdapterSettings,
+        ],
+      });
+      const multiAdapterLogger = multiAdapterFactory.create('MyClass');
+      multiAdapterLogger.info('test');
+
+      expect(spiedConsoleLog).toHaveBeenCalled();
+      expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
     });
   });
 });
