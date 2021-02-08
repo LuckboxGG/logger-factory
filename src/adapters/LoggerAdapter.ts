@@ -1,15 +1,10 @@
 import { isPlainObject } from 'lodash';
 import { SupportedLogLevels } from '../Logger';
-import { LogLevels, Adapters } from '../LoggerFactory';
+import { LogLevels } from '../LoggerFactory';
 
 type Config = {
   logLevel: LogLevels;
   skipTimestamps?: boolean;
-}
-
-type Settings = {
-  name: Adapters,
-  config: Config,
 }
 
 const LogLevelPriorities = {
@@ -37,7 +32,7 @@ abstract class LoggerAdapter implements LoggerAdapterInterface {
   public readonly logLevel: number;
   public readonly skipTimestamps: boolean;
 
-  protected constructor(params: Config) {
+  public constructor(params: Config) {
     this.logLevel = LogLevelPriorities[params.logLevel];
     this.skipTimestamps = params.skipTimestamps;
   }
@@ -73,6 +68,5 @@ export {
   LoggerAdapter,
   LogMessage,
   Config as LoggerAdapterConfig,
-  Settings as CommonAdapterSettings,
   LogLevelPriorities,
 };
