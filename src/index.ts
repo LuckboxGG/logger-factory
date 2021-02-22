@@ -1,4 +1,4 @@
-import { LoggerFactory, Adapters, LogLevels } from './LoggerFactory';
+import { LoggerFactory, Adapters, LogLevels, ConsoleAdapterSettings, SentryAdapterSettings } from './LoggerFactory';
 import { Logger } from './Logger';
 
 export {
@@ -6,4 +6,6 @@ export {
   Adapters,
   LogLevels,
   Logger,
+  ConsoleAdapterSettings,
+  SentryAdapterSettings,
 };
