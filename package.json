@@ -1,6 +1,6 @@
 {
   "name": "@luckbox/logger-factory",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Easy to use logger with several levels of logging as well as different adapters that can be used separately or in combinations",
   "author": "Luckbox",
   "license": "ISC",
