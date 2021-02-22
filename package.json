@@ -39,7 +39,7 @@
     "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "@luckbox/eslint-rules": "^4.0.4",
+    "@luckbox/eslint-rules": "^4.0.5",
     "@types/jest": "^26.0.3",
     "@types/node": "^14.0.14",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
