@@ -237,6 +237,8 @@ describe('LoggerFactory', () => {
     const sentrySupportedLogLevels = [
       LogLevels.Error,
       LogLevels.Warn,
+      LogLevels.Info,
+      LogLevels.Debug,
     ];
 
     for (const level of sentrySupportedLogLevels) {
