@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import { ConsoleAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
 
 describe('LoggerFactory', () => {
-  const sentryAdapterSettings =  {
+  const sentryAdapterSettings: SentryAdapterSettings =  {
     name: Adapters.Sentry,
     config: {
       dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
@@ -15,7 +15,7 @@ describe('LoggerFactory', () => {
     },
   };
 
-  const consoleAdapterSettings = {
+  const consoleAdapterSettings: ConsoleAdapterSettings = {
     name: Adapters.Console,
     config: {
       logLevel: LogLevels.Debug,
@@ -33,7 +33,7 @@ describe('LoggerFactory', () => {
       const spiedSentryInit = jest.spyOn(Sentry, 'init');
 
       expect(() => new LoggerFactory({
-        adapters: [sentryAdapterSettings as ConsoleAdapterSettings],
+        adapters: [sentryAdapterSettings],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
@@ -52,7 +52,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             debug: true,
           },
-        } as SentryAdapterSettings],
+        }],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
@@ -62,7 +62,7 @@ describe('LoggerFactory', () => {
   });
 
   const consoleLoggerFactory = new LoggerFactory({
-    adapters: [consoleAdapterSettings as ConsoleAdapterSettings],
+    adapters: [consoleAdapterSettings],
   });
   const consoleLogger = consoleLoggerFactory.create('MyClass');
 
@@ -250,7 +250,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             logLevel: level,
           },
-        } as SentryAdapterSettings],
+        }],
       });
       const customLogger = customLevelLoggerFactory.create('MyClass');
 
@@ -270,7 +270,7 @@ describe('LoggerFactory', () => {
     }
 
     const sentryLoggerFactory = new LoggerFactory({
-      adapters: [sentryAdapterSettings as SentryAdapterSettings],
+      adapters: [sentryAdapterSettings],
     });
     const sentryLogger = sentryLoggerFactory.create('SentryLogger');
 
@@ -291,7 +291,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             skipTimestamps: true,
           },
-        } as SentryAdapterSettings],
+        }],
       });
       const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
 
@@ -311,8 +311,8 @@ describe('LoggerFactory', () => {
     it.each([
       ['warn', Sentry.Severity.Warning],
       ['error', Sentry.Severity.Error],
-    ])('should properly translate our logging level %s to Sentry severity - %s', (logLevel: string, severity: Sentry.Severity) => {
-      sentryLogger[logLevel]('test');
+    ])('should properly translate our logging level %s to Sentry severity - %s', (methodName: string, severity: Sentry.Severity) => {
+      sentryLogger[methodName]('test');
       expect(spiedSentryCaptureMessage).toHaveBeenCalledWith(expect.any(String), severity);
     });
 
@@ -320,7 +320,7 @@ describe('LoggerFactory', () => {
       'system',
       'info',
       'debug',
-    ])('should not log %s logLevel', (logLevel) => {
+    ])('should not log %s logLevel', (logLevel: string) => {
       sentryLogger[logLevel]('test');
       expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
     });
@@ -362,8 +362,8 @@ describe('LoggerFactory', () => {
     it('should use all configured adapters', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings as ConsoleAdapterSettings,
-          sentryAdapterSettings as SentryAdapterSettings,
+          consoleAdapterSettings,
+          sentryAdapterSettings,
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
@@ -376,8 +376,8 @@ describe('LoggerFactory', () => {
     it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings as ConsoleAdapterSettings,
-          sentryAdapterSettings as SentryAdapterSettings,
+          consoleAdapterSettings,
+          sentryAdapterSettings,
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
