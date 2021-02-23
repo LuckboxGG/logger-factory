@@ -1,7 +1,8 @@
-import { LoggerFactory, Adapters, LogLevels } from '../index';
+import { Adapters, LoggerFactory, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
 import { ConsoleAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
+import { SupportedLogLevels } from '../Logger';
 
 describe('LoggerFactory', () => {
   const sentryAdapterSettings: SentryAdapterSettings =  {
@@ -9,7 +10,7 @@ describe('LoggerFactory', () => {
     config: {
       dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
       environment: 'production',
-      logLevel: LogLevels.Warn,
+      logLevel: LogLevels.Debug,
       debug: false,
       skipTimestamps: false,
     },
@@ -311,17 +312,15 @@ describe('LoggerFactory', () => {
     it.each([
       ['warn', Sentry.Severity.Warning],
       ['error', Sentry.Severity.Error],
+      ['info', Sentry.Severity.Info],
+      ['debug', Sentry.Severity.Debug],
     ])('should properly translate our logging level %s to Sentry severity - %s', (methodName: string, severity: Sentry.Severity) => {
       sentryLogger[methodName]('test');
       expect(spiedSentryCaptureMessage).toHaveBeenCalledWith(expect.any(String), severity);
     });
 
-    it.each([
-      'system',
-      'info',
-      'debug',
-    ])('should not log %s logLevel', (logLevel: string) => {
-      sentryLogger[logLevel]('test');
+    it('should not log system logLevel', () => {
+      sentryLogger.system('test');
       expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
     });
 
@@ -377,7 +376,13 @@ describe('LoggerFactory', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
           consoleAdapterSettings,
-          sentryAdapterSettings,
+          {
+            ...sentryAdapterSettings,
+            config: {
+              ...sentryAdapterSettings.config,
+              logLevel: SupportedLogLevels.Warn,
+            },
+          },
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
