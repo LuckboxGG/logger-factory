@@ -26,10 +26,6 @@ class SentryLoggerAdapter extends LoggerAdapter {
     Sentry.setTag('prefix', message.prefix);
 
     if (messagesAndObjects.length > 0) {
-      const severity = this.mapLogLevelToSeverity(message.level);
-      if (!severity) {
-        return;
-      }
       let formattedArgs = [];
       if (!this.skipTimestamps) {
         formattedArgs.push(this.formatDate(message.date));
@@ -39,6 +35,8 @@ class SentryLoggerAdapter extends LoggerAdapter {
         ...formattedArgs,
         ...messagesAndObjects.map((anArg) => this.serializeDataIfNecessary(anArg)),
       ];
+      
+      const severity = this.mapLogLevelToSeverity(message.level);
       Sentry.captureMessage(formattedArgs.join(' '), severity);
     }
 
