@@ -1,21 +1,22 @@
-import { LoggerFactory, Adapters, LogLevels } from '../index';
+import { Adapters, LoggerFactory, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
 import { ConsoleAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
+import { SupportedLogLevels } from '../Logger';
 
 describe('LoggerFactory', () => {
-  const sentryAdapterSettings =  {
+  const sentryAdapterSettings: SentryAdapterSettings =  {
     name: Adapters.Sentry,
     config: {
       dsn: 'https://somerandomstring@sentry.yoursentryserver.com/42',
       environment: 'production',
-      logLevel: LogLevels.Warn,
+      logLevel: LogLevels.Debug,
       debug: false,
       skipTimestamps: false,
     },
   };
 
-  const consoleAdapterSettings = {
+  const consoleAdapterSettings: ConsoleAdapterSettings = {
     name: Adapters.Console,
     config: {
       logLevel: LogLevels.Debug,
@@ -33,7 +34,7 @@ describe('LoggerFactory', () => {
       const spiedSentryInit = jest.spyOn(Sentry, 'init');
 
       expect(() => new LoggerFactory({
-        adapters: [sentryAdapterSettings as ConsoleAdapterSettings],
+        adapters: [sentryAdapterSettings],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
@@ -52,7 +53,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             debug: true,
           },
-        } as SentryAdapterSettings],
+        }],
       })).not.toThrow();
 
       expect(spiedSentryInit).toHaveBeenCalledWith(expect.objectContaining({
@@ -62,7 +63,7 @@ describe('LoggerFactory', () => {
   });
 
   const consoleLoggerFactory = new LoggerFactory({
-    adapters: [consoleAdapterSettings as ConsoleAdapterSettings],
+    adapters: [consoleAdapterSettings],
   });
   const consoleLogger = consoleLoggerFactory.create('MyClass');
 
@@ -245,7 +246,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             logLevel: level,
           },
-        } as SentryAdapterSettings],
+        }],
       });
       const customLogger = customLevelLoggerFactory.create('MyClass');
 
@@ -264,25 +265,8 @@ describe('LoggerFactory', () => {
       }
     }
 
-    const pointlessLoggerFactory = new LoggerFactory({
-      adapters: [{
-        ...sentryAdapterSettings,
-        config: {
-          ...sentryAdapterSettings.config,
-          logLevel: LogLevels.Silent,
-        },
-      } as SentryAdapterSettings],
-    });
-    const pointlessLogger = pointlessLoggerFactory.create('MyClass');
-
-    it.each(orderedLogLevels)('should not call the console.log when calling logger.%s [off]', (method) => {
-      pointlessLogger[method]('test');
-
-      expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
-    });
-
     const sentryLoggerFactory = new LoggerFactory({
-      adapters: [sentryAdapterSettings as SentryAdapterSettings],
+      adapters: [sentryAdapterSettings],
     });
     const sentryLogger = sentryLoggerFactory.create('SentryLogger');
 
@@ -303,7 +287,7 @@ describe('LoggerFactory', () => {
             ...sentryAdapterSettings.config,
             skipTimestamps: true,
           },
-        } as SentryAdapterSettings],
+        }],
       });
       const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
 
@@ -315,14 +299,20 @@ describe('LoggerFactory', () => {
       expect(lastCallArgs).not.toContain('(2020/06/23 14:34:56.000)');
     });
 
-    it('should set the logLevel as a tag', () => {
-      sentryLogger.warn('test');
-      expect(spiedSentrySetTag).toHaveBeenCalledWith('logLevel', 'warn');
-    });
-
     it('should set the prefix as a tag', () => {
       sentryLogger.warn('test');
       expect(spiedSentrySetTag).toHaveBeenCalledWith('prefix', 'SentryLogger');
+    });
+
+    it.each([
+      ['warn', Sentry.Severity.Warning],
+      ['error', Sentry.Severity.Error],
+      ['info', Sentry.Severity.Info],
+      ['debug', Sentry.Severity.Debug],
+      ['system', Sentry.Severity.Log],
+    ])('should properly translate our logging level %s to Sentry severity - %s', (methodName: string, severity: Sentry.Severity) => {
+      sentryLogger[methodName]('test');
+      expect(spiedSentryCaptureMessage).toHaveBeenCalledWith(expect.any(String), severity);
     });
 
     it('should call captureMessage when logging plaintext', () => {
@@ -362,8 +352,8 @@ describe('LoggerFactory', () => {
     it('should use all configured adapters', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings as ConsoleAdapterSettings,
-          sentryAdapterSettings as SentryAdapterSettings,
+          consoleAdapterSettings,
+          sentryAdapterSettings,
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');
@@ -376,8 +366,14 @@ describe('LoggerFactory', () => {
     it('should only call the adapters for which the configured min logLevel is higher than the message loglevel', () => {
       const multiAdapterFactory = new LoggerFactory({
         adapters: [
-          consoleAdapterSettings as ConsoleAdapterSettings,
-          sentryAdapterSettings as SentryAdapterSettings,
+          consoleAdapterSettings,
+          {
+            ...sentryAdapterSettings,
+            config: {
+              ...sentryAdapterSettings.config,
+              logLevel: SupportedLogLevels.Warn,
+            },
+          },
         ],
       });
       const multiAdapterLogger = multiAdapterFactory.create('MyClass');

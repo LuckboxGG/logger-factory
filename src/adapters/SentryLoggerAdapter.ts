@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { partition } from 'lodash';
 import { LoggerAdapter, LogMessage, LoggerAdapterConfig } from './LoggerAdapter';
+import { LogLevels } from '../LoggerFactory';
 
 type Config = LoggerAdapterConfig & {
   dsn: string;
@@ -23,7 +24,6 @@ class SentryLoggerAdapter extends LoggerAdapter {
     const [ errors, messagesAndObjects ] = partition(message.args, (anArg) => anArg instanceof Error);
 
     Sentry.setTag('prefix', message.prefix);
-    Sentry.setTag('logLevel', message.level);
 
     if (messagesAndObjects.length > 0) {
       let formattedArgs = [];
@@ -35,13 +35,30 @@ class SentryLoggerAdapter extends LoggerAdapter {
         ...formattedArgs,
         ...messagesAndObjects.map((anArg) => this.serializeDataIfNecessary(anArg)),
       ];
-      Sentry.captureMessage(formattedArgs.join(' '));
+      
+      const severity = this.mapLogLevelToSeverity(message.level);
+      Sentry.captureMessage(formattedArgs.join(' '), severity);
     }
 
     if (errors.length > 0) {
       for (const anError of errors) {
         Sentry.captureException(anError);
       }
+    }
+  }
+
+  private mapLogLevelToSeverity(logLevel: LogLevels) {
+    switch (logLevel) {
+      case LogLevels.Warn:
+        return Sentry.Severity.Warning;
+      case LogLevels.Error:
+        return Sentry.Severity.Error;
+      case LogLevels.Info:
+        return Sentry.Severity.Info;
+      case LogLevels.Debug:
+        return Sentry.Severity.Debug;
+      case LogLevels.System:
+        return Sentry.Severity.Log;
     }
   }
 }
