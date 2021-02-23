@@ -234,17 +234,10 @@ describe('LoggerFactory', () => {
       spiedSentrySetTag.mockClear();
     });
 
-    const sentrySupportedLogLevels = [
-      LogLevels.Error,
-      LogLevels.Warn,
-      LogLevels.Info,
-      LogLevels.Debug,
-    ];
-
-    for (const level of sentrySupportedLogLevels) {
-      const index = sentrySupportedLogLevels.indexOf(level);
-      const overlappedMethods = sentrySupportedLogLevels.slice(0, index + 1);
-      const nonOverlappedMethods = sentrySupportedLogLevels.slice(index + 1);
+    for (const level of orderedLogLevels) {
+      const index = orderedLogLevels.indexOf(level);
+      const overlappedMethods = orderedLogLevels.slice(0, index + 1);
+      const nonOverlappedMethods = orderedLogLevels.slice(index + 1);
 
       const customLevelLoggerFactory = new LoggerFactory({
         adapters: [{
@@ -316,14 +309,10 @@ describe('LoggerFactory', () => {
       ['error', Sentry.Severity.Error],
       ['info', Sentry.Severity.Info],
       ['debug', Sentry.Severity.Debug],
+      ['system', Sentry.Severity.Log],
     ])('should properly translate our logging level %s to Sentry severity - %s', (methodName: string, severity: Sentry.Severity) => {
       sentryLogger[methodName]('test');
       expect(spiedSentryCaptureMessage).toHaveBeenCalledWith(expect.any(String), severity);
-    });
-
-    it('should not log system logLevel', () => {
-      sentryLogger.system('test');
-      expect(spiedSentryCaptureMessage).not.toHaveBeenCalled();
     });
 
     it('should call captureMessage when logging plaintext', () => {

@@ -59,6 +59,8 @@ class SentryLoggerAdapter extends LoggerAdapter {
         return Sentry.Severity.Info;
       case LogLevels.Debug:
         return Sentry.Severity.Debug;
+      case LogLevels.System:
+        return Sentry.Severity.Log;
     }
   }
 }
