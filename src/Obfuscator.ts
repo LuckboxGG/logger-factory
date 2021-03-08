@@ -6,9 +6,9 @@ enum Tag {
 }
 
 class Obfuscator {
-  public obfuscateObject(obj: unknown, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
-    const clonedObj = lodash.cloneDeep(obj);
-    const allPaths: Array<string> = this.collectPaths(obj);
+  public obfuscateObject(object: unknown, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
+    const clonedObj = lodash.cloneDeep(object);
+    const allPaths: Array<string> = this.collectPaths(object);
 
     const pathToTagMap = new Map();
     const allPathsToObfuscate = [];
@@ -39,7 +39,7 @@ class Obfuscator {
     return clonedObj;
   }
 
-  public obfuscateString(value: string, tag: string): string {
+  public obfuscateString(value: string, tag: Tag): string {
     const upperCasedTag = tag.toUpperCase();
     return `[${upperCasedTag}]${value}[/${upperCasedTag}]`;
   }
