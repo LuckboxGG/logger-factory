@@ -1,4 +1,4 @@
-import { Obfuscator } from '../../Obfuscator';
+import { Obfuscator, Tag } from '../../Obfuscator';
 
 describe('Obfuscator', () => {
   const obfuscator = new Obfuscator();
@@ -13,18 +13,18 @@ describe('Obfuscator', () => {
     it('should wrap the provided tag around root-level elements in object', () => {
       const originalObject = { name: 'Pencho' };
       const obfuscatedObject = { name: '[PII]Pencho[/PII]' };
-      expect(obfuscator.obfuscateObject(originalObject, ['name'], 'pii')).toEqual(obfuscatedObject);
+      expect(obfuscator.obfuscateObject(originalObject, [['name', Tag.PII]])).toEqual(obfuscatedObject);
     });
 
     it('should wrap the provided tag around nested elements in object', () => {
       const originalObject = { id: 1, data: { name: 'Gosho', email: 'email@example.com' } };
       const obfuscatedObject = { id: 1, data: { name: '[PII]Gosho[/PII]', email: '[PII]email@example.com[/PII]' } };
-      expect(obfuscator.obfuscateObject(originalObject, ['data.name', 'data.email'], 'pii')).toEqual(obfuscatedObject);
+      expect(obfuscator.obfuscateObject(originalObject, [['data.name', Tag.PII], ['data.email', Tag.PII]])).toEqual(obfuscatedObject);
     });
 
     it('should NOT wrap the provided tag around elements that are not specified for obfuscating in object', () => {
       const originalObject = { favouriteColor: 'red', nested: { field: 'value' } };
-      expect(obfuscator.obfuscateObject(originalObject, ['name'], 'pii')).toEqual(originalObject);
+      expect(obfuscator.obfuscateObject(originalObject, [['name', Tag.PII]])).toEqual(originalObject);
     });
   });
 });
