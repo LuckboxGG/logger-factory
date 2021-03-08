@@ -23,14 +23,11 @@ class Obfuscator {
       if (allPathsToObfuscate.some((propPath) => new RegExp(propPath[0]).test(actualPath))) {
         const rawValue = lodash.get(clonedObj, path);
 
-        let upperCasedTag;
-        try {
-          upperCasedTag = this.determineTag(pathToTagMap, path);
-        } catch (ex) {
+        const tag = this.determineTag(pathToTagMap, path);
+        if (!tag) {
           continue;
         }
-
-        lodash.set(clonedObj, path, this.obfuscateString(rawValue, upperCasedTag));
+        lodash.set(clonedObj, path, this.obfuscateString(rawValue, tag));
       }
     }
 
@@ -63,9 +60,6 @@ class Obfuscator {
 
   private determineTag(pathToTagMap: any, path: string) {
     const tag = pathToTagMap.get(path);
-    if (!tag) {
-      throw new Error();
-    }
     return tag;
   }
 }
