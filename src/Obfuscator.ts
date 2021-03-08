@@ -6,7 +6,7 @@ enum Tag {
 }
 
 class Obfuscator {
-  public obfuscateObject(object: unknown, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
+  public obfuscateObject(object: Record<string, unknown>, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
     const clonedObj = lodash.cloneDeep(object);
     const allPaths: Array<string> = this.collectPaths(object);
 
