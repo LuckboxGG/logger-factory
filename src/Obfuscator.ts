@@ -1,8 +1,8 @@
 import lodash from 'lodash';
 
 enum Tag {
-  PII = 'pii',
-  SECRET = 'secret'
+  PII = 'PII',
+  SECRET = 'SECRET'
 }
 
 class Obfuscator {
@@ -30,9 +30,7 @@ class Obfuscator {
           continue;
         }
 
-        const transformedValue = `[${upperCasedTag}]${rawValue}[/${upperCasedTag}]`;
-
-        lodash.set(clonedObj, path, transformedValue);
+        lodash.set(clonedObj, path, this.obfuscateString(rawValue, upperCasedTag));
       }
     }
 
@@ -68,7 +66,7 @@ class Obfuscator {
     if (!tag) {
       throw new Error();
     }
-    return  tag.toUpperCase();
+    return tag;
   }
 }
 
