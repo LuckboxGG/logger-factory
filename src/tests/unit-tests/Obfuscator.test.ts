@@ -5,7 +5,7 @@ describe('Obfuscator', () => {
   
   describe('obfuscateString', () => {
     it('should wrap the provided tag around the string that needs to be obfuscated', () => {
-      expect(obfuscator.obfuscateString('string', 'pii')).toEqual('[PII]string[/PII]');
+      expect(obfuscator.obfuscateString('string', Tag.PII)).toEqual('[PII]string[/PII]');
     });
   });
 
