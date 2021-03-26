@@ -218,7 +218,7 @@ describe('LoggerFactory', () => {
 
     it('should not throw when stringifying big int', () => {
       expect(() => {
-        consoleLogger.info({ id: BigInt(Number.MAX_SAFE_INTEGER + 1) })
+        consoleLogger.info({ id: BigInt(Number.MAX_SAFE_INTEGER + 1) });
       }).not.toThrow();
     });
   });

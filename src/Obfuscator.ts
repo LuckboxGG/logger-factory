@@ -6,7 +6,12 @@ enum Tag {
 }
 
 class Obfuscator {
-  public obfuscateObject(object: Record<string, unknown>, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
+  public obfuscateString(value: string, tag: Tag): string {
+    const upperCasedTag = tag.toUpperCase();
+    return `[${upperCasedTag}]${value}[/${upperCasedTag}]`;
+  }
+
+  public obfuscateObject<T extends Record<string, unknown>>(object: T, obfuscateSettings: Array<[string, Tag]>): T {
     const clonedObj = lodash.cloneDeep(object);
     const allPaths: Array<string> = this.collectPaths(object);
 
@@ -27,16 +32,33 @@ class Obfuscator {
         if (!tag) {
           continue;
         }
-        lodash.set(clonedObj, path, this.obfuscateString(rawValue, tag));
+        lodash.set(clonedObj, path, this.obfuscateString(rawValue as string, tag));
       }
     }
 
     return clonedObj;
   }
 
-  public obfuscateString(value: string, tag: Tag): string {
-    const upperCasedTag = tag.toUpperCase();
-    return `[${upperCasedTag}]${value}[/${upperCasedTag}]`;
+  public obfuscateError<T extends Error>(err: T, obfuscateSettings: Array<[string, Tag]>): T {
+    const clonedErr = new Error(err.message);
+    Object.setPrototypeOf(clonedErr, Object.getPrototypeOf(err));
+
+    for (const prop of Object.getOwnPropertyNames(err)) {
+      let dataToAssign = err[prop];
+      if (lodash.isPlainObject(dataToAssign)) {
+        const relevantSettings: Array<[string, Tag]> = obfuscateSettings.filter(([path]) => path.startsWith(prop) + '.').map(([path, tag]) => [path.slice(prop.length + 1, path.length), tag]);
+
+        if (relevantSettings.length) {
+          dataToAssign = this.obfuscateObject(dataToAssign, relevantSettings);
+        }
+      }
+
+      Object.assign(clonedErr, {
+        [prop]: dataToAssign,
+      });
+    }
+
+    return clonedErr as T;
   }
 
   private collectPaths(input: any, currentPath?: string) {
