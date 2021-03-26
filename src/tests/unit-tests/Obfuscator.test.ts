@@ -26,19 +26,17 @@ describe('Obfuscator', () => {
       const originalObject = { favouriteColor: 'red', nested: { field: 'value' } };
       expect(obfuscator.obfuscateObject(originalObject, [['name', Tag.PII]])).toEqual(originalObject);
     });
-  });
 
-  describe('obfuscateError', () => {
     it('should return a copy of the error and not modify the original', () => {
       const originalError = new Error();
-      const obfuscatedError = obfuscator.obfuscateError(originalError, [['bar', Tag.PII]]);
+      const obfuscatedError = obfuscator.obfuscateObject(originalError, [['bar', Tag.PII]]);
       expect(obfuscatedError).not.toBe(originalError);
     });
 
     it('should preserve the prototype, name, message and stack of the error', () => {
       class CustomError extends Error {}
       const originalError = new CustomError();
-      const obfuscatedError = obfuscator.obfuscateError(originalError, [['bar', Tag.PII]]);
+      const obfuscatedError = obfuscator.obfuscateObject(originalError, [['bar', Tag.PII]]);
 
       expect(obfuscatedError).toBeInstanceOf(CustomError);
       expect(obfuscatedError.name).toEqual(originalError.name);
@@ -48,16 +46,19 @@ describe('Obfuscator', () => {
 
     it('should obfuscate error specific props', () => {
       class CustomError extends Error {
-        bar = {
-          foo: 'test',
+        bar = 'foo'
+        foo = {
+          test: 'test',
         }
       }
       const originalError = new CustomError();
-      const obfuscatedError = obfuscator.obfuscateError(originalError, [
-        ['bar.foo', Tag.PII],
+      const obfuscatedError = obfuscator.obfuscateObject(originalError, [
+        ['bar', Tag.PII],
+        ['foo.test', Tag.PII],
       ]);
 
-      expect(obfuscatedError.bar.foo).toEqual('[PII]test[/PII]');
+      expect(obfuscatedError.bar).toEqual('[PII]foo[/PII]');
+      expect(obfuscatedError.foo.test).toEqual('[PII]test[/PII]');
     });
   });
 });
