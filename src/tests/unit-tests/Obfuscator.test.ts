@@ -53,7 +53,9 @@ describe('Obfuscator', () => {
         }
       }
       const originalError = new CustomError();
-      const obfuscatedError = obfuscator.obfuscateError(originalError, [['bar.foo', Tag.PII]]);
+      const obfuscatedError = obfuscator.obfuscateError(originalError, [
+        ['bar.foo', Tag.PII],
+      ]);
 
       expect(obfuscatedError.bar.foo).toEqual('[PII]test[/PII]');
     });

@@ -46,7 +46,9 @@ class Obfuscator {
     for (const prop of Object.getOwnPropertyNames(err)) {
       let dataToAssign = err[prop];
       if (lodash.isPlainObject(dataToAssign)) {
-        const relevantSettings: Array<[string, Tag]> = obfuscateSettings.filter(([path]) => path.startsWith(prop) + '.').map(([path, tag]) => [path.slice(prop.length + 1, path.length), tag]);
+        const relevantSettings: Array<[string, Tag]> = obfuscateSettings
+          .filter(([path]) => path.startsWith(prop) + '.')
+          .map(([path, tag]) => [path.slice(prop.length + 1, path.length), tag]);
 
         if (relevantSettings.length) {
           dataToAssign = this.obfuscateObject(dataToAssign, relevantSettings);
