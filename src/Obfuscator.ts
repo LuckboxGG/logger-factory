@@ -13,11 +13,14 @@ class Obfuscator {
   }
 
   public obfuscateObject<T extends PlainObject | Error>(object: T, obfuscateSettings: Array<[string, Tag]>): T {
-    if (this.isPlainObject(object)) {
+    if (this.isError(object)) {
+      return this.obfuscateError(object, obfuscateSettings);
+    } else if (this.isPlainObject(object)) {
       return this.obfuscatePlainObject(object, obfuscateSettings);
     }
 
-    return this.obfuscateError(object as Error, obfuscateSettings) as T;
+    throw new Error('Input must be plain object or a class inheriting from Error');
+
   }
 
   private obfuscatePlainObject<T extends PlainObject>(plainObject: T, obfuscateSettings: Array<[string, Tag]>): T {
@@ -88,6 +91,10 @@ class Obfuscator {
 
   private isPlainObject(value: unknown): value is PlainObject {
     return lodash.isPlainObject(value);
+  }
+
+  private isError(value: unknown): value is Error {
+    return value instanceof Error;
   }
 }
 
