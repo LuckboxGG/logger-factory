@@ -9,8 +9,7 @@ type PlainObject = Record<string, unknown>;
 
 class Obfuscator {
   public obfuscateString(value: string, tag: Tag): string {
-    const upperCasedTag = tag.toUpperCase();
-    return `[${upperCasedTag}]${value}[/${upperCasedTag}]`;
+    return `[${tag}]${value}[/${tag}]`;
   }
 
   public obfuscateObject<T extends PlainObject | Error>(object: T, obfuscateSettings: Array<[string, Tag]>): T {
