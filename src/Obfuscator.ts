@@ -87,7 +87,7 @@ class Obfuscator {
     return tag;
   }
 
-  private isPlainObject(value: any): value is PlainObject {
+  private isPlainObject(value: unknown): value is PlainObject {
     return lodash.isPlainObject(value);
   }
 }
