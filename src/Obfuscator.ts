@@ -5,10 +5,27 @@ enum Tag {
   SECRET = 'SECRET'
 }
 
+type PlainObject = Record<string, unknown>;
+
 class Obfuscator {
-  public obfuscateObject(object: Record<string, unknown>, obfuscateSettings: Array<[string, Tag]>): Record<string, unknown> {
-    const clonedObj = lodash.cloneDeep(object);
-    const allPaths: Array<string> = this.collectPaths(object);
+  public obfuscateString(value: string, tag: Tag): string {
+    return `[${tag}]${value}[/${tag}]`;
+  }
+
+  public obfuscateObject<T extends PlainObject | Error>(object: T, obfuscateSettings: Array<[string, Tag]>): T {
+    if (this.isError(object)) {
+      return this.obfuscateError(object, obfuscateSettings);
+    } else if (this.isPlainObject(object)) {
+      return this.obfuscatePlainObject(object, obfuscateSettings);
+    }
+
+    throw new Error('Input must be plain object or a class inheriting from Error');
+
+  }
+
+  private obfuscatePlainObject<T extends PlainObject>(plainObject: T, obfuscateSettings: Array<[string, Tag]>): T {
+    const clonedObj = lodash.cloneDeep(plainObject);
+    const allPaths: Array<string> = this.collectPaths(plainObject);
 
     const pathToTagMap = new Map();
     const allPathsToObfuscate = [];
@@ -27,16 +44,25 @@ class Obfuscator {
         if (!tag) {
           continue;
         }
-        lodash.set(clonedObj, path, this.obfuscateString(rawValue, tag));
+        lodash.set(clonedObj, path, this.obfuscateString(rawValue as string, tag));
       }
     }
 
     return clonedObj;
   }
 
-  public obfuscateString(value: string, tag: Tag): string {
-    const upperCasedTag = tag.toUpperCase();
-    return `[${upperCasedTag}]${value}[/${upperCasedTag}]`;
+  private obfuscateError<T extends Error>(err: T, obfuscateSettings: Array<[string, Tag]>): T {
+    const clonedErr = new Error(err.message);
+    Object.setPrototypeOf(clonedErr, Object.getPrototypeOf(err));
+
+    const dataToAssign = {};
+    for (const prop of Object.getOwnPropertyNames(err)) {
+      dataToAssign[prop] = lodash.cloneDeep(err[prop]);
+    }
+
+    Object.assign(clonedErr, this.obfuscatePlainObject(dataToAssign, obfuscateSettings));
+
+    return clonedErr as T;
   }
 
   private collectPaths(input: any, currentPath?: string) {
@@ -61,6 +87,14 @@ class Obfuscator {
   private determineTag(pathToTagMap: any, path: string) {
     const tag = pathToTagMap.get(path);
     return tag;
+  }
+
+  private isPlainObject(value: unknown): value is PlainObject {
+    return lodash.isPlainObject(value);
+  }
+
+  private isError(value: unknown): value is Error {
+    return value instanceof Error;
   }
 }
 
