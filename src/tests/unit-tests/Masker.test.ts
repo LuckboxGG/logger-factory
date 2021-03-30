@@ -36,7 +36,7 @@ describe('Masker', () => {
       });
     });
 
-    it('should NOT wrap the provided tag around elements that are not specified for obfuscating in object', () => {
+    it('should NOT wrap the provided tag around elements that are not specified for masking in object', () => {
       const originalObject = { favouriteColor: 'red', nested: { field: 'value' } };
       expect(masker.maskObject(originalObject, [['name', Tag.PII]])).toEqual(originalObject);
     });

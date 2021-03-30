@@ -10,5 +10,5 @@ export {
   ConsoleAdapterSettings,
   SentryAdapterSettings,
   Masker,
-  Tag as ObfuscatorTag,
+  Tag as MaskerTag,
 };
