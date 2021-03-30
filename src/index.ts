@@ -1,6 +1,6 @@
 import { LoggerFactory, Adapters, LogLevels, ConsoleAdapterSettings, SentryAdapterSettings } from './LoggerFactory';
 import { Logger } from './Logger';
-import { Obfuscator, Tag } from './Obfuscator';
+import { Masker, Tag } from './Masker';
 
 export {
   LoggerFactory,
@@ -9,6 +9,6 @@ export {
   Logger,
   ConsoleAdapterSettings,
   SentryAdapterSettings,
-  Obfuscator,
+  Masker,
   Tag as ObfuscatorTag,
 };
