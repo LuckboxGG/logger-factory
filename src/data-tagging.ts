@@ -7,19 +7,11 @@ export enum Tag {
 
 type PlainObject = Record<string, unknown>;
 
-type Tagged<T> = {
-  [K in keyof T]: T[K] extends number ? string | number : Tagged<T[K]>
-}
-
 export function tagString(value: string, tag: Tag): string {
   return `[${tag}]${value}[/${tag}]`;
 }
 
-export function tagNumber(value: number, tag: Tag): string {
-  return `[${tag}]${value}[/${tag}]`;
-}
-
-export function tagObject<T extends PlainObject | Error>(object: T, tagSettings: Array<[string, Tag]>): Tagged<T> {
+export function tagObject<T extends PlainObject | Error>(object: T, tagSettings: Array<[string, Tag]>): T {
   if (isError(object)) {
     return tagError(object, tagSettings);
   } else if (isPlainObject(object)) {
@@ -29,7 +21,7 @@ export function tagObject<T extends PlainObject | Error>(object: T, tagSettings:
   throw new Error('Input must be plain object or a class inheriting from Error');
 }
 
-function tagPlainObject<T extends PlainObject>(plainObject: T, tagSettings: Array<[string, Tag]>): Tagged<T> {
+function tagPlainObject<T extends PlainObject>(plainObject: T, tagSettings: Array<[string, Tag]>): T {
   const clonedObj = clone(plainObject);
   const pathToTagMap = constructPathToTagMap(tagSettings);
 
@@ -44,16 +36,12 @@ function tagPlainObject<T extends PlainObject>(plainObject: T, tagSettings: Arra
     if (typeof rawValue === 'string') {
       lodash.set(clonedObj, path, tagString(rawValue, tag));
     }
-
-    if (typeof rawValue === 'number') {
-      lodash.set(clonedObj, path, tagNumber(rawValue, tag));
-    }
   }
 
-  return clonedObj as Tagged<T>;
+  return clonedObj;
 }
 
-function tagError<T extends Error>(err: T, tagSettings: Array<[string, Tag]>): Tagged<T> {
+function tagError<T extends Error>(err: T, tagSettings: Array<[string, Tag]>): T {
   const clonedErr = new Error(err.message);
   Object.setPrototypeOf(clonedErr, Object.getPrototypeOf(err));
 
@@ -64,7 +52,7 @@ function tagError<T extends Error>(err: T, tagSettings: Array<[string, Tag]>): T
 
   Object.assign(clonedErr, tagPlainObject(dataToAssign, tagSettings));
 
-  return clonedErr as Tagged<T>;
+  return clonedErr as T;
 }
 
 function collectPaths(input: any, currentPath?: string) {

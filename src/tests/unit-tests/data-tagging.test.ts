@@ -1,5 +1,4 @@
 import {
-  tagNumber,
   tagString,
   tagObject,
   Tag,
@@ -9,12 +8,6 @@ describe('Data Tagging', () => {
   describe('tagString', () => {
     it('should wrap the provided tag around the string that needs to be tagd', () => {
       expect(tagString('string', Tag.PII)).toEqual('[PII]string[/PII]');
-    });
-  });
-
-  describe('tagNumber', () => {
-    it('should wrap the provided tag around the number that needs to be tagd', () => {
-      expect(tagNumber(42, Tag.PII)).toEqual('[PII]42[/PII]');
     });
   });
 
@@ -29,14 +22,6 @@ describe('Data Tagging', () => {
       const originalObject = { id: 1, data: { name: 'Gosho', email: 'email@example.com' } };
       const taggedObject = { id: 1, data: { name: '[PII]Gosho[/PII]', email: '[PII]email@example.com[/PII]' } };
       expect(tagObject(originalObject, [['data.name', Tag.PII], ['data.email', Tag.PII]])).toEqual(taggedObject);
-    });
-
-    it('should work with numbers', () => {
-      const originalObject = { id: 1 };
-
-      expect(tagObject(originalObject, [['id', Tag.PII]])).toEqual({
-        id: '[PII]1[/PII]',
-      });
     });
 
     it('should NOT wrap the provided tag around elements that are not specified for taging in object', () => {
