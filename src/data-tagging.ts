@@ -33,9 +33,11 @@ function tagPlainObject<T extends PlainObject>(plainObject: T, tagSettings: Arra
     }
 
     const rawValue = lodash.get(clonedObj, path);
-    if (typeof rawValue === 'string') {
-      lodash.set(clonedObj, path, tagString(rawValue, tag));
+    if (typeof rawValue !== 'string') {
+      continue;
     }
+
+    lodash.set(clonedObj, path, tagString(rawValue, tag));
   }
 
   return clonedObj;
