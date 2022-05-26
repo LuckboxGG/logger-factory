@@ -1,5 +1,6 @@
 import ConsoleLoggerAdapter from './adapters/ConsoleLoggerAdapter';
 import SentryLoggerAdapter, { SentryAdapterConfig } from './adapters/SentryLoggerAdapter';
+import DiscordLoggerAdapter, { DiscordAdapterConfig } from './adapters/DiscordLoggerAdapter';
 import assert from 'assert';
 import { Logger, SupportedLogLevels } from './Logger';
 import { LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
@@ -7,6 +8,7 @@ import { LoggerAdapter, LoggerAdapterConfig } from './adapters/LoggerAdapter';
 enum SupportedAdapters {
   Console = 'console',
   Sentry = 'sentry',
+  Discord = 'discord',
 }
 
 type ConsoleAdapterSettings = {
@@ -19,7 +21,12 @@ type SentryAdapterSettings = {
   config: SentryAdapterConfig,
 }
 
-type AdapterSettings = ConsoleAdapterSettings | SentryAdapterSettings
+type DiscordAdapterSettings = {
+  name: SupportedAdapters.Discord,
+  config: DiscordAdapterConfig,
+}
+
+type AdapterSettings = ConsoleAdapterSettings | SentryAdapterSettings | DiscordAdapterSettings
 
 interface ConstructorParams {
   adapters: Array<AdapterSettings>,
@@ -48,6 +55,9 @@ class LoggerFactory {
         case SupportedAdapters.Sentry:
           this.adapters.push(new SentryLoggerAdapter(adapter.config));
           break;
+        case SupportedAdapters.Discord:
+          this.adapters.push(new DiscordLoggerAdapter(adapter.config));
+          break;
       }
     }
   }
@@ -71,4 +81,5 @@ export {
   SupportedLogLevels as LogLevels,
   SentryAdapterSettings,
   ConsoleAdapterSettings,
+  DiscordAdapterSettings,
 };

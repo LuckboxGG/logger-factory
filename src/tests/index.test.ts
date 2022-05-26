@@ -1,7 +1,7 @@
 import { Adapters, LoggerFactory, LogLevels } from '../index';
 import { AssertionError } from 'assert';
 import * as Sentry from '@sentry/node';
-import { ConsoleAdapterSettings, SentryAdapterSettings } from '../LoggerFactory';
+import { ConsoleAdapterSettings, SentryAdapterSettings, DiscordAdapterSettings } from '../LoggerFactory';
 import { SupportedLogLevels } from '../Logger';
 
 describe('LoggerFactory', () => {
@@ -20,6 +20,16 @@ describe('LoggerFactory', () => {
     name: Adapters.Console,
     config: {
       logLevel: LogLevels.Debug,
+    },
+  };
+
+  const discordAdapterSetting: DiscordAdapterSettings = {
+    name: Adapters.Discord,
+    config: {
+      logLevel: LogLevels.Debug,
+      webhookId: '1',
+      token: 'sometoken',
+      regex: new RegExp('/Failed/'),
     },
   };
 
@@ -337,6 +347,57 @@ describe('LoggerFactory', () => {
       sentryLogger.error('test', new Error('Test!'));
       expect(spiedSentryCaptureMessage).toHaveBeenCalled();
       expect(spiedSentryCaptureException).toHaveBeenCalled();
+    });
+  });
+
+  describe('Logging [discord]*', () => {
+    const discordLoggerFactory = new LoggerFactory({
+      adapters: [discordAdapterSetting],
+    });
+    
+    const discordLogger = discordLoggerFactory.create('MyClass');
+    console.log(discordLogger);
+    const spiedDiscordLog = jest.spyOn(discordLogger['adapters'][0], 'log');
+
+    afterEach(() => {
+      spiedDiscordLog.mockClear();
+    });
+
+    const pointlessLoggerFactory = new LoggerFactory({
+      adapters: [{
+        name: Adapters.Discord,
+        config: {
+          ...discordAdapterSetting.config,
+          logLevel: LogLevels.Silent,
+        },
+      }],
+    });
+    const pointlessLogger = pointlessLoggerFactory.create('MyClass');
+
+    it.each(orderedLogLevels)('should not call the console.log when calling logger.%s [off]', (method) => {
+      pointlessLogger[method]('test');
+
+      expect(spiedDiscordLog).not.toHaveBeenCalled();
+    });
+
+    it('should not display date when constructed with skipTimestamps = true', () => {
+      const noTimestampsLoggerFactory = new LoggerFactory({
+        adapters: [{
+          name: Adapters.Discord,
+          config: {
+            ...discordAdapterSetting.config,
+            skipTimestamps: true,
+          },
+        }],
+      });
+      const noTimestampsLogger = noTimestampsLoggerFactory.create('MyClass');
+
+      mockDate(new Date('Tue, 23 Jun 2020 14:34:56'));
+      noTimestampsLogger.info('Failed');
+      restoreDate();
+
+      const lastCallArgs = spiedDiscordLog.mock.calls.pop();
+      expect(lastCallArgs).not.toEqual('(2020/06/23 14:34:56.000)');
     });
   });
 

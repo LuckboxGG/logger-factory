@@ -13,7 +13,7 @@ const LogLevelPriorities = {
   [SupportedLogLevels.Error]: 2,
   [SupportedLogLevels.Warn]: 3,
   [SupportedLogLevels.Info]: 4,
-  [SupportedLogLevels.Debug]: 5,
+  [SupportedLogLevels.Debug]: 6,
 };
 
 interface LogMessage {
